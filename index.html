@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>eraOP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap');
+:root{
+--bg:#0a0a0f;--bg2:#10101a;--bg3:#1a1a28;
+--text:#d0d0e0;--text-dim:#7878a0;--text-bright:#e8e8f5;
+--accent:#6a8fff;--accent2:#4466cc;--accent-dim:#2a3a6a;
+--danger:#cc4455;--danger-bright:#ee5566;
+--success:#44aa66;--success-bright:#55cc77;
+--info:#4488cc;--info-bright:#55aaee;
+--border:#2a2a40;--border-light:#3a3a55;
+--pc:#e85a7a;--pv:#e8447a;--pa:#c850c8;--pb:#e8a040;
+--pfear:#5080d0;--psub:#8060c0;--plove:#e06080;--prebel:#d04040;
+--gold:#ddaa33;--warning:#ccaa44;
+--font-body:'Noto Sans JP',sans-serif;--font-display:'Shippori Mincho',serif;
+--radius:6px;--shadow:0 4px 20px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font-body);font-size:14px;color:var(--text);background:var(--bg);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--accent-dim);border-radius:2px}
+button{font-family:var(--font-body);cursor:pointer;border:none;transition:all .15s;-webkit-tap-highlight-color:transparent}
+button:active{transform:scale(.97)}
+.screen{display:none;flex-direction:column;height:100%}.screen.active{display:flex}
+/* Title */
+#title-screen{justify-content:center;align-items:center;text-align:center;background:radial-gradient(ellipse at 50% 30%,#141428 0%,var(--bg) 70%);position:relative;overflow:hidden}
+#title-screen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(106,143,255,.01) 2px,rgba(106,143,255,.01) 4px);pointer-events:none}
+.title-logo{font-family:var(--font-display);font-size:2.4em;font-weight:700;color:var(--accent);text-shadow:0 0 40px rgba(106,143,255,.3),0 0 80px rgba(106,143,255,.1);letter-spacing:.15em;margin-bottom:.2em}
+.title-sub{font-family:var(--font-display);font-size:.9em;color:var(--text-dim);letter-spacing:.3em;margin-bottom:2.5em}
+.title-ver{font-size:.7em;color:var(--text-dim);margin-top:2.5em;opacity:.6}
+.tbtn{display:block;width:260px;margin:6px auto;padding:12px 16px;background:var(--bg3);color:var(--text);border:1px solid var(--border-light);font-size:.9em;font-family:var(--font-body);letter-spacing:.08em;border-radius:var(--radius);cursor:pointer;transition:all .2s;min-height:44px}
+.tbtn:hover{background:var(--accent-dim);border-color:var(--accent2);color:var(--text-bright)}
+.tbtn:active{transform:scale(.97);background:var(--accent-dim)}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+.tbtn.primary{background:var(--accent-dim);border-color:var(--accent);color:#fff}
+.tbtn.primary:hover{background:var(--accent2)}
+/* Select */
+#select-screen{padding:16px;overflow-y:auto;max-width:520px;margin:0 auto;width:100%}
+.sel-label{font-family:var(--font-display);font-size:1em;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:10px;letter-spacing:.05em}
+.ccard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.ccard:hover,.ccard.sel{border-color:var(--accent);background:var(--bg3)}.ccard.sel{box-shadow:0 0 12px rgba(106,143,255,.15)}
+.ccard-name{font-family:var(--font-display);font-size:1.05em;color:var(--text-bright)}
+.ccard-info{font-size:.78em;color:var(--text-dim);margin-top:4px;line-height:1.5}
+.ccard-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
+.ccard-tag{font-size:.7em;padding:2px 8px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--text-dim)}
+/* Game */
+#game-screen{position:relative}
+.ghdr{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;min-height:36px}
+.ghdr-l{display:flex;align-items:center;gap:10px}.ghdr-pc{font-family:var(--font-display);font-size:.85em;color:var(--accent);font-weight:700}.ghdr-day{font-size:.75em;color:var(--text-dim)}
+.ghdr-r{display:flex;gap:6px;align-items:center}
+.ghdr-xp{font-size:.72em;color:var(--gold);margin-right:4px;font-weight:700}
+.hbtn{font-size:.7em;padding:4px 10px;background:var(--bg3);color:var(--text-dim);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s}
+.hbtn:hover{border-color:var(--accent-dim);color:var(--text)}
+.sbar{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.72em}
+.spnl{background:var(--bg2);border-radius:var(--radius);padding:6px 8px;border:1px solid var(--border)}
+.spnl-name{font-family:var(--font-display);font-size:1.05em;color:var(--accent);margin-bottom:3px;font-weight:700}
+.sr{display:flex;align-items:center;gap:4px;margin:2px 0}.sr-l{width:28px;color:var(--text-dim);flex-shrink:0}
+.sr-bw{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}.sr-b{height:100%;border-radius:3px;transition:width .3s}
+.sr-v{width:28px;text-align:right;color:var(--text-dim);flex-shrink:0;font-size:.9em}
+.sln{color:var(--text-dim);margin:1px 0;line-height:1.4;font-size:.95em}.sln b{color:var(--text-bright);font-weight:600}
+.stag{display:inline-block;padding:1px 5px;margin:1px 2px;border-radius:8px;background:var(--bg);border:1px solid var(--border);font-size:.85em}
+.smrk{color:var(--accent)}
+.fallen-tag{display:inline-block;padding:2px 8px;margin:1px 2px;border-radius:8px;font-size:.9em;font-weight:700;letter-spacing:.05em}
+.fallen-love{background:rgba(224,96,128,.15);border:1px solid var(--plove);color:var(--plove)}
+.fallen-lust{background:rgba(200,80,200,.15);border:1px solid var(--pa);color:var(--pa)}
+.fallen-obey{background:rgba(128,96,192,.15);border:1px solid var(--psub);color:var(--psub)}
+.fallen-broken{background:rgba(204,68,85,.15);border:1px solid var(--danger);color:var(--danger-bright)}
+/* Text */
+.tarea{flex:1;overflow-y:auto;padding:12px 14px;background:var(--bg);line-height:1.7;scroll-behavior:smooth}
+.tl{margin-bottom:4px;animation:fi .3s}.t-system{color:var(--text-dim);font-size:.85em}.t-narration{color:var(--text)}.t-dialogue{color:var(--text-bright)}
+.t-voice{color:var(--accent);line-height:1.6}
+.t-effect{color:var(--accent);font-size:.8em}.t-deny{color:var(--danger-bright);font-style:italic}.t-success{color:var(--success-bright)}.t-fail{color:var(--danger-bright)}
+.t-combo{color:var(--gold);font-weight:700}.t-derive{color:var(--info-bright);font-weight:700}.t-mental{color:#9070b0;font-style:italic}
+.t-separator{border-bottom:1px solid var(--border);margin:8px 0}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* Cmd */
+.carea{flex-shrink:0;background:var(--bg2);border-top:1px solid var(--border);height:40vh;display:flex;flex-direction:column}
+.ctabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;position:sticky;top:0;z-index:2;background:var(--bg2)}
+.ctabs::-webkit-scrollbar{display:none}
+.ctab{flex-shrink:0;padding:8px 12px;font-size:.75em;background:var(--bg2);color:var(--text-dim);border-right:1px solid var(--border);cursor:pointer;transition:all .15s;border:none}
+.ctab.active{background:var(--bg3);color:var(--accent);border-bottom:2px solid var(--accent)}
+.ctab:active{background:var(--bg3)}
+.clist{padding:6px;overflow-y:auto;flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px;align-content:start}
+.cbtn{text-align:left;padding:8px 10px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);font-size:.8em;font-family:var(--font-body);line-height:1.3;cursor:pointer;transition:all .15s}
+.cbtn:hover{border-color:var(--accent-dim);background:var(--bg3)}
+.cbtn:active{transform:scale(.97)}
+.cbtn.risky{border-color:var(--danger);color:var(--danger-bright)}.cbtn.risky:hover{border-color:var(--danger-bright);background:rgba(204,68,85,.1)}
+.cbtn .cc{font-size:.7em;color:var(--text-dim);display:inline;margin-left:4px}.cbtn .cr{font-size:.7em;color:var(--info-bright);display:inline;margin-left:4px}
+.cbtn .cu{font-size:.7em;color:var(--danger);display:block;margin-top:2px}.cbtn .ck{font-size:.7em;color:var(--danger-bright);display:inline;margin-left:4px}
+/* Night menu */
+.nightmenu{display:flex;gap:8px;padding:12px;justify-content:center;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.nightmenu .tbtn{width:auto;flex:1;min-width:100px;max-width:180px;margin:0;padding:10px 8px;font-size:.85em;text-align:center}
+/* Shop */
+#shop-screen{padding:16px;overflow-y:auto;max-width:520px;margin:0 auto;width:100%}
+.shop-cat{font-family:var(--font-display);font-size:1em;color:var(--accent);margin:12px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px;letter-spacing:.05em}
+.shop-item{display:flex;justify-content:space-between;align-items:center;padding:10px;margin-bottom:4px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);transition:all .15s}
+.shop-item:hover{border-color:var(--border-light)}
+.shop-item-name{font-size:.9em;color:var(--text)}.shop-item-desc{font-size:.7em;color:var(--text-dim)}
+.shop-item-price{font-size:.8em;color:var(--gold);white-space:nowrap;font-weight:700}
+.shop-buy{font-size:.75em;padding:4px 12px;background:var(--accent-dim);color:var(--text-bright);border:1px solid var(--accent);border-radius:var(--radius);margin-left:8px;cursor:pointer;transition:all .15s;font-family:var(--font-body)}
+.shop-buy:hover{background:var(--accent2)}
+.shop-buy:active{transform:scale(.97)}
+.shop-buy:disabled{opacity:.3;cursor:not-allowed}
+/* Room select */
+#room-screen{padding:16px;overflow-y:auto;max-width:520px;margin:0 auto;width:100%}
+.room-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.room-card:hover{border-color:var(--accent);background:var(--bg3)}
+.room-card-name{font-family:var(--font-display);font-size:1em;color:var(--text-bright)}
+.room-card-stat{font-size:.75em;color:var(--text-dim);margin-top:4px}
+/* Help */
+#help-screen{padding:16px;overflow-y:auto;max-width:520px;margin:0 auto;width:100%}
+.help-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:.82rem;line-height:1.8;color:var(--text)}
+.help-panel b{color:var(--accent)}
+.help-panel p{margin-top:8px}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border-light);border-radius:10px;padding:20px;width:100%;max-width:400px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow)}
+.modal-box h3{font-size:1rem;color:var(--accent);margin-bottom:12px;font-family:var(--font-display)}
+/* Responsive */
+@media(max-width:380px){body{font-size:13px}.cbtn{padding:6px 8px;font-size:.75em}.ctab{padding:6px 10px}}
+@media(min-width:520px){body{font-size:15px}}
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FHVR89B52"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3FHVR89B52');
+</script>
+</head>
+<body>
+<div id="title-screen" class="screen active">
+<div class="title-logo">eraOP</div><div class="title-sub">Training SLG — eraOP</div>
+<button class="tbtn primary" onclick="showScreen('select-screen')">▶ はじめから</button>
+<button class="tbtn" onclick="loadGame()">▶ つづきから</button>
+<button class="tbtn" style="width:260px;font-size:.8em;min-height:38px;padding:8px 16px;margin-top:4px" onclick="showHelp()">？ 遊び方</button>
+<div class="title-ver">v0.5 — Remixed Edition</div>
+</div>
+<div id="select-screen" class="screen"><div class="sel-label">① 操作キャラを選択</div><div id="pc-list"></div><div class="sel-label" style="margin-top:16px">② 調教対象を選択</div><div id="tgt-list"></div><button class="tbtn primary" id="start-btn" disabled onclick="startGame()">▶ 開始</button><button class="tbtn" style="margin-top:2px;font-size:.8em;min-height:38px;padding:8px 16px" onclick="showScreen('title-screen')">戻る</button></div>
+<div id="game-screen" class="screen">
+<div class="ghdr"><div class="ghdr-l"><span class="ghdr-pc" id="hdr-pc"></span><span class="ghdr-day" id="hdr-day"></span></div><div class="ghdr-r"><span class="ghdr-xp" id="hdr-xp"></span><button class="hbtn" onclick="saveGame()">SAVE</button><button class="hbtn" onclick="showHelp()">？</button></div></div>
+<div class="sbar" id="sbar"></div>
+<div class="tarea" id="tarea"></div>
+<div id="phase-area"></div>
+<div class="carea" id="carea" style="display:none"><div class="ctabs" id="ctabs"></div><div class="clist" id="clist"></div></div>
+</div>
+<div id="shop-screen" class="screen"><div class="sel-label">ショップ <span id="shop-xp" style="float:right;font-size:.8em"></span></div><div id="shop-list"></div><button class="tbtn" onclick="closeShop()">戻る</button></div>
+<div id="room-screen" class="screen"><div class="sel-label">他の部屋に行く</div><div id="room-list"></div><button class="tbtn" onclick="closeRoom()">戻る</button></div>
+<div id="help-screen" class="screen"><div style="padding:6px 12px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0"><span style="font-family:var(--font-display);font-size:.9em;color:var(--accent);font-weight:700">遊び方</span><button class="hbtn" onclick="backFromHelp()">戻る</button></div><div style="flex:1;padding:16px;overflow-y:auto"><div style="max-width:520px;margin:0 auto"><div class="help-panel"><p><b>■ 基本</b></p><p>キャラクターを調教・育成するSLGです。</p><p style="margin-top:8px"><b>■ 流れ</b></p><p>1. 操作キャラと調教対象を選ぶ<br>2. コマンドを選んで調教する<br>3. 1日の終了時に買い物や部屋移動が可能<br>4. パラメータを変動させて自分好みに調教しよう。</p><p style="margin-top:8px"><b>■ コマンド成功率</b></p><p>従順・欲望などのパラメータ値やセッション中の行動で変化します。序盤は会話や愛撫で慣れさせながら、徐々に上位コマンドを解放していくのがオススメ。</p><p style="margin-top:8px"><b>■ 素質</b></p><p>恋慕: 従順Lv4＋恭順↑<br>淫乱: 欲望Lv4＋欲情↑<br>服従: 従順Lv4＋屈服↑<br><br>例）淫乱にするなら:<br>恭順が上がらないように欲情させまくろう。</p><p style="margin-top:8px"><b>■ 精神値</b></p><p>SM・ハード系コマンドは対象の精神を削ります。0になると「精神崩壊」し、壊れてしまいます。壊れる前であれば、会話系で精神を回復することができます。</p><p style="margin-top:8px"><b>■ 覇気</b></p><p>覇気持ちキャラのみ使用可能。強力ですが失敗すると反感が急増します。</p><p style="margin-top:8px"><b>■ XP・ショップ</b></p><p>調教でXPを獲得し、ショップでコマンド解放やアイテム購入に使えます。</p></div></div></div></div>
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal-box" id="modal-content"></div></div>
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const CHARS={
+crocodile:{id:'crocodile',name:'クロコダイル',faction:'クロスギルド',body_type:'male',desc:'元七武海。砂漠の王。',age:46,
+talents:['能力者','覇気持ち','武装色','見聞色','自制心','スキンシップ苦手'],
+mult:{aibu:0,comm:-0.1,tool:0.1,sex:0,serve:0.1,sm:0.3,special:0.1,uke:-0.2,hard:0.2,haki:0.2},
+base:{hp:95,sp:90,mental:90},initAbl:{obey:0,desire:0,technique:1,sensC:0,sensV:0,sensA:0,sensB:0,service:1,expo:0,maso:0,sado:2},cost:0},
+mihawk:{id:'mihawk',name:'ミホーク',faction:'クロスギルド',body_type:'male',desc:'世界最強の剣士。孤高。',age:43,
+talents:['覇気持ち','武装色','見聞色','自制心','バックバージン'],
+mult:{aibu:0.1,comm:-0.2,tool:0,sex:0.1,serve:0,sm:0,special:-0.1,uke:0.3,hard:0,haki:0.2},
+base:{hp:100,sp:95,mental:95},initAbl:{obey:0,desire:0,technique:0,sensC:0,sensV:0,sensA:0,sensB:0,service:0,expo:0,maso:0,sado:0},cost:0},
+zoro:{id:'zoro',name:'ロロノア・ゾロ',faction:'麦わらの一味',body_type:'male',desc:'三刀流の剣士。',age:21,
+talents:['気丈','負けず嫌い','覇気持ち','酒好き','スキンシップ苦手','バックバージン','童貞'],
+mult:{aibu:-0.1,comm:-0.1,tool:0,sex:0,serve:0,sm:0.1,special:0,uke:0,hard:0.1,haki:0.1},
+base:{hp:90,sp:80,mental:85},initAbl:{obey:0,desire:0,technique:0,sensC:0,sensV:0,sensA:0,sensB:0,service:0,expo:0,maso:0,sado:0},cost:0},
+sanji:{id:'sanji',name:'サンジ',faction:'麦わらの一味',body_type:'male',desc:'黒足の料理人。情熱的。',age:21,
+talents:['快感に素直','好奇心旺盛','スキンシップ好き','童貞','バックバージン'],
+mult:{aibu:0.2,comm:0.2,tool:0.1,sex:0.1,serve:0.1,sm:-0.2,special:0,uke:0.1,hard:-0.2,haki:0},
+base:{hp:80,sp:75,mental:70},initAbl:{obey:0,desire:0,technique:2,sensC:0,sensV:0,sensA:0,sensB:0,service:0,expo:0,maso:0,sado:0},cost:0},
+law:{id:'law',name:'トラファルガー・ロー',faction:'ハートの海賊団',body_type:'male',desc:'死の外科医。反抗的。',age:26,
+talents:['能力者','反抗的','自制心','覇気持ち','スキンシップ苦手','バックバージン','童貞'],
+mult:{aibu:0,comm:0,tool:0.2,sex:0,serve:-0.1,sm:0,special:0,uke:0,hard:0,haki:0.1},
+base:{hp:75,sp:90,mental:80},initAbl:{obey:0,desire:0,technique:1,sensC:0,sensV:0,sensA:0,sensB:0,service:0,expo:0,maso:0,sado:0},cost:0},
+smoker:{id:'smoker',name:'スモーカー',faction:'海軍',body_type:'male',desc:'海軍中将。白猟。',age:36,
+talents:['能力者','覇気持ち','武装色','気丈','自制心'],
+mult:{aibu:0,comm:-0.1,tool:0,sex:0,serve:0,sm:0.2,special:0,uke:-0.1,hard:0.1,haki:0.1},
+base:{hp:90,sp:85,mental:85},initAbl:{obey:0,desire:0,technique:0,sensC:0,sensV:0,sensA:0,sensB:0,service:0,expo:0,maso:0,sado:0},cost:0},
+doffy:{id:'doffy',name:'ドフラミンゴ',faction:'元七武海',body_type:'male',desc:'天夜叉。支配者。',age:41,
+talents:['能力者','覇気持ち','覇王色','武装色','見聞色','プライド高い','自制心'],
+mult:{aibu:-0.1,comm:-0.1,tool:0,sex:0,serve:-0.1,sm:0.3,special:0,uke:-0.3,hard:0.2,haki:0.3},
+base:{hp:95,sp:90,mental:90},initAbl:{obey:0,desire:0,technique:0,sensC:0,sensV:0,sensA:0,sensB:0,service:0,expo:0,maso:0,sado:3},cost:100},
+buggy:{id:'buggy',name:'バギー',faction:'クロスギルド',body_type:'male',desc:'千両道化。虚勢と強運。',age:39,
+talents:['能力者','快感に素直','バックバージン','童貞'],
+mult:{aibu:0.1,comm:0.2,tool:0.1,sex:0.1,serve:0.1,sm:-0.2,special:0.1,uke:0.1,hard:-0.3,haki:0},
+base:{hp:55,sp:60,mental:50},initAbl:{obey:0,desire:0,technique:0,sensC:0,sensV:0,sensA:0,sensB:0,service:1,expo:0,maso:0,sado:0},cost:40}
+};
+const PALAM_LV=[0,100,500,3000,10000,30000];
+const ABL_TH=[0,50,150,400,1000,2500,6000,12000,25000,50000,100000];
+function pLv(v){for(let i=PALAM_LV.length-1;i>=0;i--)if(v>=PALAM_LV[i])return i;return 0}
+const S2P={kaiC:{kaiC:1,desire:.3},kaiV:{kaiV:1,desire:.4},kaiA:{kaiA:1,desire:.3},kaiB:{kaiB:1,desire:.2},
+jouai:{kyoujun:.6,desire:.2},sei:{desire:.4,shame:.3},tass:{learn:1},itami:{pain:1,fear:.3},osore:{fear:1,sub:.3},
+yokuj:{desire:1},kyouj:{kyoujun:1},roshut:{shame:1,desire:.2},kujuu:{sub:1,fear:.2},hanpa:{rebel:1,fukai:.3},utsuk:{utsu:1,fukai:.5}};
+// Clothing: 0=dressed,1=half,2=nude
+const CLOTH_NAMES=['着衣','半脱衣','全裸'];
+const CLOTH_MOD={0:{aibu:.7,roshut:.3},1:{aibu:1,roshut:1},2:{aibu:1.3,roshut:2.0}};
+// Equip data: id, display name, source multiplier bonuses while worn
+const EQUIP_DATA={
+  gag:     {name:'ボールギャグ', bonus:{kujuu:1.2, osore:1.15}},
+  mask:    {name:'アイマスク',   bonus:{osore:1.2, kaiC:1.15, kaiV:1.1}},
+  nipple:  {name:'ニプルキャップ', bonus:{kaiB:1.3}},
+  apron:   {name:'エプロン',     bonus:{kujuu:1.2, jouai:1.2}},
+  collar:  {name:'首輪',         bonus:{kujuu:1.15, osore:1.1}},
+  rope:    {name:'縄',           bonus:{kujuu:1.2, hanpa:1.1}}
+};
+// Permanent piercings: persist across sessions unlike equips
+const PIERCING_DATA={
+  nipple_p:{name:'乳首ピアス',bonus:{kaiB:1.3,roshut:1.1}},
+  tongue_p:{name:'舌ピアス',bonus:{kaiC:1.15}},
+  genital_p:{name:'性器ピアス',bonus:{kaiC:1.25,kaiV:1.15,kaiA:1.1}}
+};
+// Commands: mentalCost = base mental impact (negative=damage, positive=heal)
+const CMDS=[
+// Aibu
+{id:'aibu',name:'愛撫',cat:'aibu',cn:'愛撫',ord:3,src:{kaiC:80,kaiB:80,jouai:50,sei:60,hanpa:20},hp:5,mc:-2,bc:'any',d:'身体を優しく愛撫する'},
+{id:'mune',name:'胸愛撫',cat:'aibu',cn:'愛撫',ord:3,src:{kaiB:150,jouai:30,sei:50,roshut:30,hanpa:20},hp:5,mc:-2,bc:'any',d:'胸を重点的に愛撫する'},
+{id:'anal_aibu',name:'アナル愛撫',cat:'aibu',cn:'愛撫',ord:5,src:{kaiA:120,sei:60,kujuu:30,hanpa:50},hp:10,mc:-3,bc:'any',ra:{obey:1},d:'後部を丹念に刺激する'},
+{id:'kaichou',name:'秘部開帳',cat:'aibu',cn:'愛撫',ord:4,src:{kaiC:30,roshut:200,sei:40,hanpa:60},hp:5,mc:-4,bc:'any',d:'秘部を無理やり開かせる'},
+{id:'nugasu',name:'脱がす',cat:'aibu',cn:'愛撫',ord:3,src:{roshut:300,hanpa:100,sei:50},hp:0,mc:-3,bc:'any',d:'衣服を剥ぎ取る',undress:true},
+// Comm
+{id:'kaiwa',name:'会話',cat:'comm',cn:'会話',ord:0,src:{kyouj:1000},hp:0,mc:3,bc:'any',d:'日常的な会話を交わす'},
+{id:'kiss',name:'キスする',cat:'aibu',cn:'愛撫',ord:6,src:{jouai:300,sei:200,yokuj:100},hp:0,mc:-4,bc:'any',d:'口づけを交わす'},
+{id:'skinship',name:'スキンシップ',cat:'comm',cn:'会話',ord:0,src:{jouai:500,sei:500},hp:0,mc:1,bc:'any',d:'軽く触れ合う'},
+{id:'mattari',name:'まったりする',cat:'comm',cn:'会話',ord:0,src:{jouai:700},hp:0,mc:5,bc:'any',d:'穏やかな時間を過ごす'},
+{id:'batou',name:'罵倒',cat:'comm',cn:'会話',ord:0,src:{osore:700,kujuu:100,hanpa:500},hp:0,mc:-5,bc:'any',d:'激しい言葉で責める'},
+{id:'bouryoku',name:'暴力を振るう',cat:'comm',cn:'会話',ord:0,src:{itami:1800,osore:2000,kujuu:1000,hanpa:800},hp:20,mc:-12,bc:'any',d:'物理的な暴力で屈服させる'},
+{id:'shokuji',name:'食事を与える',cat:'comm',cn:'会話',ord:0,src:{kyouj:300,jouai:200},hp:0,mc:4,bc:'any',heals:15,d:'食事で体力を回復させる'},
+{id:'sake',name:'酒を振る舞う',cat:'comm',cn:'会話',ord:0,src:{kyouj:400,yokuj:200,jouai:300},hp:0,mc:2,bc:'any',d:'酒で心を解す'},
+{id:'kyuusoku',name:'休息を与える',cat:'comm',cn:'会話',ord:0,src:{},hp:0,mc:10,bc:'any',heals:40,endsSession:true,d:'手当てをし、十分な休息を取らせる。調教を終了する'},
+{id:'modoru',name:'独房に戻す',cat:'comm',cn:'会話',ord:0,src:{},hp:0,mc:3,bc:'any',heals:20,endsSession:true,d:'今日はここまで。部屋に戻す。調教を終了する'},
+// InsertV
+{id:'seijou',name:'正常位',cat:'sex',cn:'挿入',ord:10,src:{kaiV:500,kaiC:100,jouai:200,sei:300},hp:40,mc:-6,bc:'targetV',d:'正面から組み合う'},
+{id:'kouhai',name:'後背位',cat:'sex',cn:'挿入',ord:10,src:{kaiV:450,kaiA:100,kujuu:100,sei:300},hp:35,mc:-7,bc:'targetV',d:'背後から挿入する'},
+// InsertA
+{id:'seijou_a',name:'正常位アナル',cat:'sex',cn:'挿入',ord:10,src:{kaiA:500,itami:150,kujuu:200,sei:300,hanpa:150},hp:40,mc:-8,bc:'targetA_pcI',d:'正面からアナルへ'},
+{id:'kouhai_a',name:'後背位アナル',cat:'sex',cn:'挿入',ord:10,src:{kaiA:550,itami:200,kujuu:300,sei:300,hanpa:200},hp:40,mc:-8,bc:'targetA_pcI',d:'背後からアナルへ'},
+{id:'zenritsusen',name:'前立腺刺激',cat:'sex',cn:'挿入',ord:8,src:{kaiA:600,kaiC:300,yokuj:400,sei:200},hp:30,mc:-5,bc:'targetMaleA',ra:{sensA:1},d:'奥のしこりを揉みほぐす'},
+// Serve
+{id:'fera',name:'フェラチオ',cat:'serve',cn:'奉仕',ord:12,src:{kujuu:300,yokuj:200,tass:150},hp:10,mc:-5,bc:'pcMale',ra:{obey:2},d:'口での奉仕を命じる'},
+{id:'tein',name:'手淫させる',cat:'serve',cn:'奉仕',ord:8,src:{kujuu:150,yokuj:200,tass:100},hp:5,mc:-4,bc:'any',ra:{obey:2},d:'手での奉仕を命じる'},
+// SM
+{id:'spank',name:'スパンキング',cat:'sm',cn:'SM',ord:5,src:{itami:450,osore:400,hanpa:300},hp:15,mc:-6,bc:'any',d:'臀部を叩き恐怖を刻む'},
+{id:'muchi',name:'鞭',cat:'sm',cn:'SM',ord:7,src:{itami:800,osore:600,kujuu:200,hanpa:500},hp:15,mc:-10,bc:'any',d:'鞭で打ち屈服させる',req_unlock:'u_muchi'},
+{id:'kousoku',name:'拘束調教',cat:'sm',cn:'SM',ord:5,src:{kujuu:800,osore:400,hanpa:600},hp:5,mc:-4,bc:'any',sf:'restrained',d:'自由を奪い拘束する',req_unlock:'u_kousoku',equip:'rope'},
+// Uke
+{id:'kijou_suru',name:'騎乗位する',cat:'uke',cn:'主人受',ord:15,src:{yokuj:500,sei:300,tass:300},hp:30,mc:-3,bc:'pcV',ra:{obey:4,desire:3},d:'PCが自ら腰を下ろす'},
+{id:'kijou_a_suru',name:'騎乗位アナルする',cat:'uke',cn:'主人受',ord:15,src:{yokuj:500,sei:250,tass:300,kujuu:-100},hp:30,mc:-3,bc:'pcA',ra:{obey:4,desire:3},d:'PCが自らアナルへ'},
+// Hard
+{id:'irama',name:'イラマチオ',cat:'hard',cn:'ハード',ord:18,src:{kujuu:1000,itami:400,hanpa:600,osore:300},hp:20,mc:-12,bc:'pcMale',d:'喉奥まで突き入れる'},
+{id:'kankin',name:'暗室放置',cat:'hard',cn:'ハード',ord:0,src:{osore:1500,kujuu:600,hanpa:800,utsuk:800},hp:0,mc:-15,bc:'any',d:'暗い部屋に閉じ込める'},
+{id:'kyousei',name:'強制奉仕',cat:'hard',cn:'ハード',ord:16,src:{kujuu:1000,roshut:500,hanpa:700,utsuk:300},hp:10,mc:-12,bc:'any',sf:'restrained',d:'拘束したまま奉仕を強いる'},
+// Tool
+{id:'rotor',name:'ローター',cat:'tool',cn:'道具',ord:5,src:{kaiC:200,kaiV:100,yokuj:150},hp:5,mc:-3,bc:'any',req_item:'i_rotor',d:'振動で敏感な箇所を刺激する'},
+{id:'vibe',name:'バイブ',cat:'tool',cn:'道具',ord:8,src:{kaiV:400,kaiC:100,yokuj:200,sei:100},hp:10,mc:-5,bc:'targetV',req_item:'i_vibe',d:'挿入型の振動具で責める'},
+{id:'anal_vibe',name:'アナルバイブ',cat:'tool',cn:'道具',ord:8,src:{kaiA:350,kujuu:100,yokuj:150},hp:10,mc:-5,bc:'any',req_item:'i_anal_vibe',d:'後部に振動具を挿入する'},
+{id:'nipple_cap',name:'ニプルキャップ',cat:'tool',cn:'道具',ord:4,src:{kaiB:250,roshut:150,yokuj:100},hp:0,mc:-2,bc:'any',req_item:'i_nipple',d:'乳首に吸着具を装着する',equip:'nipple'},
+{id:'mouth_gag',name:'ボールギャグ',cat:'tool',cn:'道具',ord:6,src:{kujuu:400,osore:300,hanpa:300,roshut:200},hp:0,mc:-5,bc:'any',req_item:'i_gag',d:'口枷で声を封じる',equip:'gag'},
+{id:'eye_mask',name:'アイマスク',cat:'tool',cn:'道具',ord:5,src:{osore:500,kaiC:100,kaiV:100,roshut:400},hp:0,mc:-4,bc:'any',req_item:'i_mask',d:'視覚を奪い感覚を鋭敏にする',equip:'mask'},
+{id:'candle',name:'蝋燭',cat:'tool',cn:'道具',ord:7,src:{itami:600,osore:500,roshut:300,hanpa:300},hp:10,mc:-8,bc:'any',req_item:'i_candle',d:'蝋燭を肌に垂らす'},
+// Special
+{id:'lotion',name:'ローション',cat:'tool',cn:'道具',ord:0,src:{kaiC:50,kaiV:50,yokuj:100,sei:200},hp:0,mc:-1,bc:'any',req_item:'i_lotion',sf:'lotioned',d:'全身にローションを塗り込む。次の愛撫・挿入の効果↑'},
+{id:'biyaku',name:'媚薬',cat:'tool',cn:'道具',ord:0,src:{yokuj:800,kaiC:200,kaiV:200,kaiA:100},hp:0,mc:-6,bc:'any',req_item:'i_biyaku',d:'媚薬を投与し欲情を暴走させる'},
+{id:'mental_drug',name:'精神安定剤',cat:'tool',cn:'道具',ord:0,src:{kyouj:200},hp:0,mc:15,bc:'any',req_item:'i_mental',d:'精神を安定させ回復する'},
+{id:'heal_drug',name:'河童の妙薬',cat:'tool',cn:'道具',ord:0,src:{kyouj:100},hp:0,mc:2,bc:'any',req_item:'i_heal',heals:999,d:'体力を全回復させる'},
+{id:'shuchi',name:'羞恥プレイ',cat:'special',cn:'特殊',ord:8,src:{roshut:1000,sei:500,yokuj:300,hanpa:400},hp:5,mc:-7,bc:'any',req_unlock:'u_shuchi',d:'鏡の前で自身の姿を見せつける'},
+{id:'yagai',name:'野外プレイ',cat:'special',cn:'特殊',ord:12,src:{roshut:1500,osore:800,yokuj:500,hanpa:300},hp:15,mc:-10,bc:'any',req_unlock:'u_yagai',d:'屋外に連れ出し人目に晒す',equip:'collar'},
+{id:'satsuei',name:'撮影',cat:'special',cn:'特殊',ord:10,src:{roshut:800,kujuu:600,osore:400,hanpa:500},hp:0,mc:-8,bc:'any',req_unlock:'u_satsuei',d:'恥ずかしい姿を撮影して記録する'},
+{id:'shinpu',name:'新妻プレイ',cat:'special',cn:'特殊',ord:14,src:{jouai:1200,kyouj:800,yokuj:300,sei:300},hp:0,mc:3,bc:'any',req_unlock:'u_shinpu',d:'エプロン姿で夫婦ごっこを演じさせる',equip:'apron'},
+{id:'kairoseki',name:'海楼石の手錠',cat:'special',cn:'特殊',ord:6,src:{kujuu:2000,osore:1500,hanpa:300},hp:0,mc:-8,bc:'targetNoumi',req_unlock:'u_kairoseki',sf:'restrained_kairoseki',d:'海楼石の手錠で能力を封じ、自由を奪う'},
+{id:'misemono',name:'見世物',cat:'special',cn:'特殊',ord:16,src:{roshut:2000,kujuu:800,osore:600,hanpa:600,utsuk:400},hp:10,mc:-12,bc:'any',req_unlock:'u_misemono',d:'衆目に晒し、見世物にする'},
+// New Aibu
+{id:'mimi',name:'耳舐め',cat:'aibu',cn:'愛撫',ord:4,src:{jouai:200,sei:300,kaiC:60,yokuj:80},hp:3,mc:-2,bc:'any',d:'耳朶を舌でなぞり、吐息を吹きかける'},
+{id:'chikubi',name:'乳首責め',cat:'aibu',cn:'愛撫',ord:5,src:{kaiB:250,kaiC:100,sei:80,yokuj:120,hanpa:30},hp:5,mc:-3,bc:'any',ra:{obey:1},d:'乳首を執拗に弄び、刺激する'},
+{id:'kabuto',name:'兜合わせ',cat:'aibu',cn:'愛撫',ord:8,src:{kaiC:200,jouai:300,yokuj:400,sei:200},hp:10,mc:-4,bc:'bothMale',d:'互いの先端を擦り合わせる'},
+// New Sex
+{id:'taimenzai',name:'対面座位',cat:'sex',cn:'挿入',ord:12,src:{kaiV:500,kaiC:200,jouai:400,sei:300,yokuj:200},hp:35,mc:-5,bc:'targetV',d:'向かい合い、抱き合うように結合する'},
+{id:'taimenzai_a',name:'対面座位アナル',cat:'sex',cn:'挿入',ord:12,src:{kaiA:500,kaiC:200,jouai:300,sei:200,kujuu:200},hp:35,mc:-6,bc:'targetA_pcI',d:'向かい合いながらアナルで結合する'},
+// New Serve
+{id:'ashinage',name:'足舐め強制',cat:'serve',cn:'奉仕',ord:10,src:{kujuu:500,roshut:300,hanpa:400,tass:100},hp:5,mc:-8,bc:'any',ra:{obey:2},d:'足を舐めさせ、服従を刻む'},
+{id:'zenshin',name:'全身奉仕',cat:'serve',cn:'奉仕',ord:14,src:{kujuu:400,yokuj:300,tass:300,jouai:200,sei:200},hp:15,mc:-6,bc:'any',ra:{obey:3,service:2},d:'全身を使った奉仕を命じる'},
+// New SM
+{id:'kubijime',name:'首絞め',cat:'sm',cn:'SM',ord:8,src:{osore:800,kujuu:600,itami:300,hanpa:400},hp:15,mc:-10,bc:'any',req_unlock:'u_kubijime',d:'首に手をかけ、意識の境界を彷徨わせる'},
+{id:'piercing',name:'ピアッシング',cat:'sm',cn:'SM',ord:12,src:{itami:1200,osore:800,kujuu:600,roshut:500,hanpa:400},hp:20,mc:-15,bc:'any',req_unlock:'u_piercing',isPiercing:true,d:'身体にピアスを穿つ。永続的な刻印。'},
+// New Hard
+{id:'kanchou',name:'浣腸',cat:'hard',cn:'ハード',ord:10,src:{kujuu:800,roshut:600,itami:400,osore:500,hanpa:500},hp:15,mc:-10,bc:'any',req_unlock:'u_kanchou',d:'腸内を洗浄液で満たす'},
+{id:'rakuin',name:'烙印',cat:'hard',cn:'ハード',ord:0,src:{itami:2000,osore:1500,kujuu:1200,hanpa:800,utsuk:600},hp:25,mc:-20,bc:'any',req_unlock:'u_rakuin',isBrand:true,d:'焼き印を押す。永遠に消えない所有の証。'},
+// Haki
+{id:'haou',name:'覇王色の威圧',cat:'haki',cn:'覇気',ord:0,src:{osore:3000,kujuu:2000,hanpa:500,utsuk:300},hp:0,mc:-20,bc:'any',rpt:'覇王色',isH:true,hb:35,d:'覇王色で圧倒する'},
+{id:'busou',name:'武装色の拘束',cat:'haki',cn:'覇気',ord:0,src:{itami:500,kujuu:1500,osore:800},hp:0,mc:-10,bc:'any',rpt:'武装色',isH:true,hb:45,sf:'restrained_haki',d:'武装色で縛り上げる'},
+{id:'kenbun',name:'見聞色の洞察',cat:'haki',cn:'覇気',ord:0,src:{kyouj:2000,jouai:500},hp:0,mc:-3,bc:'any',rpt:'見聞色',isH:true,hb:50,sf:'insight',d:'心の声を読み取る'}
+];
+const CAT_LBL={aibu:'愛撫',comm:'会話',tool:'道具',sex:'挿入',serve:'奉仕',sm:'SM',special:'特殊',uke:'主人受',hard:'ハード',haki:'覇気'};
+const COMBOS=[
+{a:'shokuji',b:'kaiwa',n:'食卓の信頼',bo:{kyouj:1.5}},{a:'skinship',b:'aibu',n:'段階的親密',bo:{jouai:1.5}},
+{a:'batou',b:'skinship',n:'飴と鞭',bo:{kyouj:2,kujuu:1.5}},{a:'sake',b:'kaiwa',n:'酒の真実',bo:{kyouj:2}},
+{a:'spank',b:'aibu',n:'痛みの後の優しさ',bo:{kaiC:1.5,kujuu:1.3}},{a:'haou',b:'shokuji',n:'王者の器量',bo:{kyouj:3,kujuu:2}},
+{a:'lotion',b:'aibu',n:'滑らかな指先',bo:{kaiC:2,jouai:1.5}},{a:'biyaku',b:'seijou',n:'薬漬けの快楽',bo:{kaiV:2,yokuj:2}},
+{a:'eye_mask',b:'aibu',n:'暗闇の刺激',bo:{kaiC:2,kaiB:1.5}},{a:'kousoku',b:'candle',n:'無慈悲な責め',bo:{itami:2,kujuu:2}},
+{a:'mouth_gag',b:'spank',n:'声なき悲鳴',bo:{osore:2,kujuu:1.5}},{a:'nugasu',b:'shuchi',n:'丸裸の羞恥',bo:{roshut:2.5}},
+{a:'satsuei',b:'seijou',n:'撮られる背徳',bo:{kujuu:2,roshut:2}},
+{a:'mimi',b:'kiss',n:'甘い誘惑',bo:{jouai:2,sei:1.5}},{a:'kubijime',b:'seijou_a',n:'窒息姦',bo:{kujuu:2,kaiA:1.5}},
+{a:'kousoku',b:'piercing',n:'拘束穿孔',bo:{kujuu:2,itami:1.5}},{a:'kabuto',b:'seijou_a',n:'焦らしの果てに',bo:{kaiA:2,yokuj:2}},
+{a:'kairoseki',b:'batou',n:'封じられた獣',bo:{kujuu:3,osore:2}},{a:'kanchou',b:'kouhai_a',n:'恥辱の洗礼',bo:{kaiA:2,roshut:2}}
+];
+// Derivations: same cmd x2 in a row
+const DERIVES={
+seijou:{n:'深く突き上げる',srcMult:{kaiV:1.5},extra:{jouai:200}},
+kouhai:{n:'激しく腰を打ちつける',srcMult:{kaiV:1.5},extra:{kujuu:200}},
+seijou_a:{n:'奥を抉る',srcMult:{kaiA:1.5},extra:{kujuu:300}},
+kouhai_a:{n:'容赦なく貫く',srcMult:{kaiA:1.5},extra:{kujuu:300}},
+taimenzai:{n:'額を合わせ奥を突く',srcMult:{kaiV:1.5,jouai:1.5},extra:{}},
+taimenzai_a:{n:'抱きしめたまま奥を穿つ',srcMult:{kaiA:1.5,jouai:1.5},extra:{}},
+spank:{n:'容赦なく打つ',srcMult:{itami:2},extra:{osore:500}},
+fera:{n:'喉奥まで',srcMult:{kujuu:1.5},extra:{itami:200}},
+rotor:{n:'出力を最大にする',srcMult:{kaiC:2,yokuj:1.5},extra:{}},
+vibe:{n:'激しくピストンする',srcMult:{kaiV:1.8},extra:{yokuj:300}},
+anal_vibe:{n:'奥まで押し込む',srcMult:{kaiA:1.8},extra:{kujuu:200}},
+zenritsusen:{n:'的確に前立腺を捉える',srcMult:{kaiA:1.5,kaiC:1.5},extra:{yokuj:500}},
+chikubi:{n:'乳首を噛む',srcMult:{kaiB:2,itami:1.3},extra:{osore:200}},
+kabuto:{n:'先走りが混ざり合う',srcMult:{kaiC:1.8,yokuj:1.5},extra:{jouai:300}}
+};
+const SHOP=[
+// Unlock: commands
+{id:'u_muchi',name:'鞭術',desc:'鞭コマンド解放',price:25,type:'unlock'},
+{id:'u_kousoku',name:'拘束術',desc:'拘束調教コマンド解放',price:20,type:'unlock'},
+{id:'u_shuchi',name:'大鏡',desc:'羞恥プレイ解放',price:30,type:'unlock'},
+{id:'u_yagai',name:'首輪',desc:'野外プレイ解放',price:40,type:'unlock'},
+{id:'u_satsuei',name:'撮影機材',desc:'撮影コマンド解放',price:35,type:'unlock'},
+{id:'u_shinpu',name:'エプロンセット',desc:'新妻プレイ解放',price:45,type:'unlock'},
+// Tool items (reusable after purchase = unlock type)
+{id:'i_rotor',name:'ローター',desc:'ローターコマンド解放',price:10,type:'unlock'},
+{id:'i_vibe',name:'バイブ',desc:'バイブコマンド解放',price:15,type:'unlock'},
+{id:'i_anal_vibe',name:'アナルバイブ',desc:'アナルバイブコマンド解放',price:15,type:'unlock'},
+{id:'i_nipple',name:'ニプルキャップ',desc:'ニプルキャップコマンド解放',price:10,type:'unlock'},
+{id:'i_gag',name:'ボールギャグ',desc:'ボールギャグコマンド解放',price:12,type:'unlock'},
+{id:'i_mask',name:'アイマスク',desc:'アイマスクコマンド解放',price:12,type:'unlock'},
+{id:'i_candle',name:'低温蝋燭セット',desc:'蝋燭コマンド解放',price:15,type:'unlock'},
+// Consumables
+{id:'i_biyaku',name:'媚薬',desc:'欲情を暴走させる（1回）',price:5,type:'item'},
+{id:'i_lotion',name:'ローション',desc:'愛撫・挿入の効果↑（1回）',price:3,type:'item'},
+{id:'i_mental',name:'精神安定剤',desc:'対象の精神を大幅回復',price:8,type:'item'},
+{id:'i_heal',name:'河童の妙薬',desc:'対象の体力を全回復',price:5,type:'item'},
+// New unlocks
+{id:'u_kubijime',name:'首絞め術',desc:'首絞めコマンド解放',price:30,type:'unlock'},
+{id:'u_piercing',name:'ピアス器具',desc:'ピアッシングコマンド解放',price:50,type:'unlock'},
+{id:'u_kanchou',name:'浣腸器具',desc:'浣腸コマンド解放',price:35,type:'unlock'},
+{id:'u_rakuin',name:'焼印',desc:'烙印コマンド解放',price:60,type:'unlock'},
+{id:'u_kairoseki',name:'海楼石の手錠',desc:'海楼石コマンド解放',price:55,type:'unlock'},
+{id:'u_misemono',name:'見世物小屋',desc:'見世物コマンド解放',price:50,type:'unlock'}
+];
+// ============================================================
+// VOICE SYSTEM (PANTVOICE-inspired)
+// ============================================================
+// Voice type per character: rough/standard/soft/formal
+const VTYPE={crocodile:'rough',mihawk:'standard',zoro:'rough',sanji:'standard',law:'formal',smoker:'rough',doffy:'standard',buggy:'standard'};
+// PANT: generic moaning by voice type × intensity
+const PANT={
+weak:{rough:['っ……','ぐ……','チッ……'],standard:['ん……','……っ','はぁ……'],soft:['あ……','ん……っ','……っ'],formal:['っ……','く……','……']},
+mid:{rough:['くっ……','あ゛っ……','んぐっ……'],standard:['んっ……あ……','はぁっ……','あっ……'],soft:['んっ……','あっ……ん……','ふぁ……っ'],formal:['っ……ん……','あ……っ','は……ぁ……']},
+high:{rough:['あ゛っ……くそっ……','んあっ……！','がっ……あぁ……'],standard:['あっ、あっ……！','んんっ……ああっ','はぁっ……んっ……！'],soft:['あぁん……っ','やっ……あっ……','んぁ……っ……！'],formal:['あっ……ぁ……っ','ん……んんっ……','はぁ……あっ……']},
+extreme:{rough:['あ゛あ゛あ゛っ！','ぐあっ……あああっ！'],standard:['いあああっ！','ああっ……あああっ！'],soft:['やぁぁぁっ……！','あぁぁん……っ！'],formal:['あ……ああっ……！','んんっ……ああっ……！']},
+pain_low:{rough:['ぐっ……！','くっ……'],standard:['っ……！','う……っ'],soft:['いっ……','あっ……痛……'],formal:['っ……！','ぐ……']},
+pain_high:{rough:['がっ……！！','ぐぁっ……！'],standard:['いっ……！','ぐっ……あっ……！'],soft:['いやっ……！','ひっ……！'],formal:['っ……！！','い……っ……！']},
+gagged:['んーっ……！','んんっ、んーっ……','んぐっ……！','ん……ん……っ！'],
+// State-specific additions
+love:{rough:['……っ、もっと……','くそ……気持ちいい……'],standard:['足りない……もっと………','気持ちいい……'],soft:['ねぇ……もっと……','触って……っ'],formal:['お願い……もっと……','離さないで……']},
+lust:{rough:['足りねえ……さっさとイかせろ……！','ーーーァあッ！！'],standard:['もっと……奥まで……','止めないで……っ'],soft:['もっと……お願い……','気持ち……いい……っ'],formal:['もっと……ください……','奥が……あっ……']},
+obey:{rough:['………早く命令しろ','…次は何をすればいい'],standard:['……仰せのままに','次の命令を'],soft:['はい……何でも……','お願い……使って……'],formal:['仰せのままに……っ','はい……ご主人様……']}
+};
+// Generic voice lines per category (fallback when no char-specific voice)
+const GEN_VOICE={
+aibu:{low:['身体を強張らせた。','嫌悪を隠さない表情。','顔を背け、唇を噛んでいる。','振り払おうとしたが、力が入らない。'],
+mid:['微かに息が漏れる。','身体がわずかに震えた。','目を閉じた。感覚に抗うことをやめつつある。','抵抗する力が弱まっている。'],
+high:['自ら身体を差し出すような仕草。','もう抵抗する気配はない。','蕩けた目でこちらを見ている。','抗う力が完全に消えた。']},
+comm:{low:['こちらを睨んでいる。','無言で視線を逸らした。','聞こえないふりをしている。'],
+mid:['少しだけ表情が緩んだ。','ぶっきらぼうに返事をした。','興味がないふりをしているが、耳は傾けている。'],
+high:['穏やかな空気が流れた。','小さく頷いた。','自分から話し始めた。']},
+sex:{low:['苦痛に顔を歪めた。','全身を強張らせた。','歯を食いしばり声を殺している。','目が見開かれた。体験したことのない感覚。'],
+mid:['押し殺した声が漏れる。','身体が徐々に力を失っていく。','呼吸が荒くなっている。','苦痛と別の何かが混ざり始めている。'],
+high:['自ら腰を揺らし始めた。','声を抑えることを諦めた。','全身の力が抜け、快感に呑まれている。','腰が勝手に動いている。']},
+serve:{low:['屈辱に顔を赤くしている。','嫌々ながら従った。'],mid:['ぎこちなく奉仕する。','屈辱と快感が入り混じる表情。'],high:['慣れた手つきで奉仕する。','従順に命令を待っている。']},
+sm:{low:['歯を食いしばった。','涙が滲むが、声は上げない。','身体が跳ねたが、すぐに唇を引き結んだ。'],
+mid:['苦痛に喘ぐ声が漏れる。','涙が頬を伝った。','痛みの後の弛緩。別の何かが混ざっている。'],
+high:['苦痛と快感の境界が曖昧になっている。','痛みを与えられるたびに、身体が反応している。','壊れたように笑っている。']},
+tool:{low:['道具を見て身を強張らせた。','未知の刺激に戸惑っている。'],mid:['道具の刺激に耐えている。','身体が勝手に反応している。'],high:['道具なしでは満足できない身体に。','刺激を求めて自ら腰を動かしている。']},
+special:{low:['羞恥で顔を真っ赤にしている。','恥ずかしさで震えている。'],mid:['恥辱に身を震わせている。','羞恥と快感が混ざっている。'],high:['恥も外聞もなくなっている。','恥ずかしさすら快感に変わっている。']},
+uke:{low:['戸惑いの表情。','状況が理解できないようだ。'],mid:['複雑な表情で見つめている。','主導権を握られ動揺している。'],high:['受け入れるように目を閉じた。','達成感が胸に広がる。']},
+hard:{low:['冷や汗が伝う。','恐怖で身体が震えている。'],mid:['抵抗する力が消えていく。','心が折れかけている。'],high:['何も感じていないかのようだ。','虚ろな目。']},
+haki:{low:['覇気の圧に身体が軋む。'],mid:['覇気に押され膝が折れる。'],high:['完全に屈した目をしている。']}
+};
+// Deny lines by state
+const DENY_LINES={
+base:['激しく抵抗された。','鋭い眼光で睨まれた。','腕を振り払われた。','身体をよじって逃れようとしている。','従わずにこちらを睨みつけている。'],
+love:['今は気分では無いようだ。','困ったような顔で首を横に振った。'],
+lust:['身体は求めているのに、プライドが邪魔をしている。'],
+obey:['従おうとしているが、身体が追いつかない。']
+};
+// ============================================================
+// CHARACTER-SPECIFIC VOICE LINES
+// Keys: cat → state(base/love/lust/obey) → level(low/mid/high)
+// ============================================================
+const CHAR_VOICE={
+crocodile:{
+aibu:{base:{
+low:['「……下らん」指先を払い除ける。','冷笑を浮かべている。だが、肌にはわずかに鳥肌が立っている。','「そんなもので俺が揺らぐと思うのか」感情のない、氷のような視線。'],
+mid:['呼吸が乱れ、目が見開かれる。','平静を装うが手が微かに震えている。','「やめろ」声に力がない。懇願に近い。'],
+high:['意思と無関係に甘い声が零れている。','低い呻き。自分の口から出たと気づき、歯を食いしばった。']},
+love:{mid:['自ら身体を擦り寄せてきた。'],high:['「……このままふたりで死んじまえたらいいのにな」']}},
+comm:{base:{
+low:['「口の減らねェやつだな」','冷たい視線。','「黙れ。耳障りだ」'],
+mid:['「……フン、暇つぶしにはなる」','静かにこちらの話を聞いている。'],
+high:['葉巻をくゆらせながら、こちらの話に耳を傾けている。']},
+love:{mid:['「……来い。隣に座れ」自分から隣を空けた。']}},
+sex:{base:{
+low:['「殺す。必ず殺す」','全身を強張らせ、歯の隙間から呻きを漏らした。'],
+mid:['「ぐ……っ」身体が裏切り始めている。','声を殺そうとして、唇から血が滲んでいる。'],
+high:['「……っ、ああ……そこ…っ……！」','声を隠す余裕もない。']},
+love:{mid:['「……っはァ…気持ちいい…」'],high:['「……もっと気合い入れて腰振れ…！！」']}},
+sm:{base:{
+low:['「その程度で俺が折れると思うな」','一切の感情を消した目。'],
+mid:['「……っ」初めて顔を歪めた。屈辱が効いている。','冷笑が消えた。真顔で耐えている。'],
+high:['「好きにさせたのはてめェが初めてだ」','目に涙が滲んでいる。何かが壊れた音。']}},
+deny:{base:['「クハハ、身の程を弁えろ」','「触るな」'],love:['「……ダメだ」殺意はない。']}
+},
+mihawk:{
+aibu:{base:{
+low:['何も言わない。真紅の瞳がこちらを射抜いている。','指先が触れた瞬間、反射的に身を引いた。戦闘反射。','黙ったまま、こちらの手首を掴んだ。'],
+mid:[],
+high:['「……続けろ」身体から力が抜ける。','自ら目を閉じて身を任せている。']},
+love:{mid:['白い肌がほんのりと桃色に染まっている。'],high:['自ら身をすり寄せてきた。']}},
+comm:{base:{
+low:['冷めた目でこちらを見ている'],
+mid:['ワインを手放した。こちらの話に興味を持ったようだ。'],
+high:['「お前と過ごすのも……悪くはない」']},
+love:{high:['「……行くな」夜の闇の中、絞り出すような声。']}},
+sex:{base:{
+low:['金色の瞳が見開かれた。この男が驚くこと自体が稀だ。','一切の声を出さない。全身が石のように硬直している。'],
+mid:['「……っ」極めて小さな吐息。聞き逃すことはできない。','瞳の焦点が揺れた。'],
+high:['掠れた甘い声。最も無防備な姿。','足を絡めて腰を揺すっている。']},
+love:{high:[]}},
+sm:{base:{
+low:['微動だにせずこちらを睨んでいる。'],
+mid:['額に汗が浮かんでいる。'],
+high:['目に諦めの色が浮かんでいる。']}},
+deny:{base:['視線だけで制止された。'],love:['「……心の準備をさせてくれ」']}
+},
+zoro:{
+aibu:{base:{
+low:['「……てめえ、何しやがる」','「チッ……」舌打ちして顔を背けた。耳が赤い。'],
+mid:['「っ……くそ、変な……とこ触んな……」声が上ずっている。','「……おい、やめ……まだ……」'],
+high:['「はぁ……っ、くそ……身体が、勝手に……」','「……もっと、そこ……」言ってから赤面。']},
+love:{mid:['「……別に、嫌じゃ……ねえけど……」赤面。'],high:['「……てめェの、せいだからな……全部……」']}},
+comm:{base:{
+low:['「用がねえなら話しかけんな」','目を閉じている。寝ているのか無視か。'],
+mid:['「……酒があるなら聞いてやる」','「お前、変な奴だな」'],
+high:[]},
+love:{high:[]}},
+sex:{base:{
+low:['「っ……！テメェ……ッ！」全身で暴れる。','歯を砕くほど食いしばっている。'],
+mid:['「あ゛っ……ンな、とこ……ッ！」','甘い声が抑えきれず赤面している。'],
+high:['「あっ……あぁ……もっと、奥……」理性の糸が切れた。']},
+love:{high:[]}},
+sm:{base:{
+low:['歯を食いしばって睨んでいる。'],mid:['「っ……！」声が漏れた。悔しげに唇を噛む。'],
+high:['耐えているが、目に涙が滲んでいる。']}},
+deny:{base:[],love:['「……順番ってもんがあるだろ」赤面。']}
+},
+sanji:{
+aibu:{base:{
+low:['「な……っ、何しやがる！」顔が一気に赤くなった。','「やめ……っ、男に触られても……っ」'],
+mid:['「っ……ん……」声を堪えようとして失敗した。身体が正直すぎる。','「くそ……なんで……こんなの……気持ちいわけ……」'],
+high:['「あ……もっと……そこ……っ」抗うことを完全にやめた。','甘い声が止まらない。料理人の繊細な指先が、シーツを掴んでいる。']},
+love:{mid:['「……お前の手、あったかいな……」'],high:['「触って……もっと触ってくれ……」']}},
+comm:{base:{
+low:['「……チッ、しつこいな」そっぽを向くが、耳は傾けている。'],
+mid:['「……なんだ、腹でも減ってんのか。ちょっと待ってろ」','話しながら、手際よく料理を始めた。'],
+high:['「お前の好きなもん、全部覚えたぜ」照れ臭そうに笑った。']},
+love:{high:['「お前のためなら……何でも作ってやる」']}},
+sex:{base:{
+low:['「やめろ……っ！ こんなの……っ！」だが身体は既に反応している。'],
+mid:['「あっ……ん、ぁ……っ」繊細な感受性が裏目に出ている。全身が快感を拾う。'],
+high:['「もっと……奥……っ、くそ、気持ちい……っ」もう隠す気すらない。']},
+love:{high:['「好きだ……っ、お前のこと……っ！」情熱的に叫んだ。']}},
+sm:{base:{
+low:['「テメェ……っ！」暴力への嫌悪が目に浮かぶ。'],mid:['耐えているが、目に涙が浮かんでいる。'],
+high:['抵抗する力が尽きた。ただ耐えている。']}},
+deny:{base:['「ふざけんな！」蹴りが飛んできた。','「……今はその気分じゃねえ」'],love:['「……もうちょっとムード大事にしろよ」']}
+},
+law:{
+aibu:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{mid:['「……お前の手、嫌いじゃないかもな」'],high:['「……もう少し、そうしていてくれ」']}},
+comm:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{high:[]}},
+sex:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{high:[]}},
+sm:{base:{
+low:[],
+mid:['分析する余裕が消えた。ただの痛みが全身を支配している。'],
+high:['「……頼む……もう…やめてくれ…」初めて懇願した。']}},
+deny:{base:['「シャンブルズ」目の前から消えた……と思ったら、部屋の隅にいた。','「断る」端的な拒絶。'],love:['「……今は、少し休ませてくれ」']}
+},
+smoker:{
+aibu:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{mid:['「……本気なのか？」戸惑い、顔を赤らめている。']}},
+comm:{base:{
+low:['「海賊と話すことはない」','葉巻ふかして無視を決め込んでいる。'],
+mid:['葉巻を吹かしながら、黙って聞いている。'],
+high:['「……お前は他の海賊とは違うようだな」']},
+love:{high:['「……おれの正義は、お前を守ることだ」']}},
+sex:{base:{
+low:[],
+mid:['「ぐっ……くそ……っ」煙が意思と無関係に噴き出す。能力の制御が乱れている。'],
+high:['「ィく……っうああっ……！」快楽に頭を振り乱している。']},
+love:{high:[]}},
+sm:{base:{
+low:[],
+mid:['額に汗が浮かぶ。だが声は上げない。'],
+high:[]}},
+deny:{base:['「調子に乗るなよ」煙が威嚇的に立ち昇る。','「……今は無理だ」'],love:['「……すまん。少し待ってくれ」']}
+},
+doffy:{
+aibu:{base:{
+low:['「フッフッフ……触りたいのか？いいぜ、どこでも好きに触れよ」','「くだらねェ。そんなもんで揺さぶれると思ってんのか？」サングラスの奥の目は笑っていない。'],
+mid:['「……っ」笑みが一瞬消えた。すぐに取り繕うが、指先が僅かに動いた。','「ほう……なかなかやるじゃねェか」まだ余裕があるが、声が低くなった。'],
+high:['サングラスの下、目が潤んでいる。もう笑っていない。','「……くそ……っ」初めて、悪態が本音になった。']},
+love:{high:['「おれのものになれ。いいな？」歪んだ独占欲。']}},
+comm:{base:{
+low:['「フッフッフ、おれと話がしたい？面白いやつだ」。','「さっさと用件を言え。おれは忙しいんだ」嘘。暇を持て余している。'],
+mid:['「……へェ」サングラスを少し下げた。興味。'],
+high:['「お前は面白ェ。おれの傍にいろ」命令の形をした懇願。']},
+love:{high:['「どうだ？ここを出たらおれのファミリーにならないか？」']}},
+sex:{base:{
+low:['「フッフッフ!!やれるもんならやってみろ」挑発的な笑み。余裕がある。まだ。','身体は拘束されているが、精神は完全に上から見ている。'],
+mid:['「……っ、ハァ……随分とイイ趣味じゃねェか……」認めた。だがまだ余裕がある。','笑みが歪み始めた。身体の反応を制御しきれなくなっている。'],
+high:['「あ゛っ……くそ……っ！こんな……雑魚にこのおれが……！」全ての虚飾が剥がれた。','サングラスが外れた。充血した目が、快楽に溺れている。']},
+love:{high:[]}},
+sm:{base:{
+low:['「フッフッフッフ!!効かねェなァ!!」'],
+mid:['笑みが消えた。こちらを睨みつけている。'],
+high:['「……っ」初めて声が漏れた。天夜叉が、痛みに屈した。']}},
+deny:{base:['「おれに命令するな」低い声。殺気。'],love:['「……今はそういう気分じゃねェ」']}
+},
+buggy:{
+aibu:{base:{
+low:['「待て待て待てェ!!いい歳こいたオッサンに何するつもりだコンチクショーッ!!」','「おれ様に触るんじゃねえ！知ってるか!? おれ様は泣く子も黙る四皇バギー様だぞ!?」','「ああっ♡いやァん♡」'],
+mid:['「あっ……ちょ、そこはダメぇっ……♡」','「やめっ……何で……こんなの……気持ちいわけ……」明らかに気持ちよさそう。'],
+high:['「あぁん……っ、もっとォ♡♡……っていやいや！もっとじゃないやめろ！！」本音が漏れた。','「んお゛っ♡♡」汚い喘ぎ声が漏れた。']},
+love:{mid:[],high:[]}},
+comm:{base:{
+low:['「誰が話なんざするか！さっさと帰ってねんねしやがれ！」','「おれを誰だと思ってやがる！ 四皇バギー様だぞ！」'],
+mid:['「……まあ、暇だし聞いてやらないこともないけどよ」素直じゃない。','「ふーん……」興味があるのにないふりをしている。'],
+high:['「なあ、もっと聞かせろよ……」寂しがり屋の本性。','「お前といると……なんか安心するんだよな……」']},
+love:{high:['「お前だけは……一緒にいろよ……頼むから……」涙ぐんでいる。']}},
+sex:{base:{
+low:['「ぎゃああああ！！ 何してんだこのスットンキョーッッ！！」大絶叫。','「いだだだだだだ！！！」泣きそう。'],
+mid:['「ひぁっ……あ、あぁ……っ」もう虚勢も尊厳もない。','「何で……おれ様がこんな目に………」半泣きで感じている。'],
+high:['「もっとぉ……もっとくれぇ……」完全に堕ちた。','「いいっ、いい……気持ちいい……」涎と涙で顔がぐちゃぐちゃだ。']},
+love:{high:[]}},
+sm:{base:{
+low:['「いだだだだっ！！ 痛い痛い痛い！！」大袈裟に泣き喚く。'],
+mid:['「もうやだ……許してくれ……何でもするから……」','「靴舐めるんで許してください……」大号泣している。'],
+high:['「……あれ、なんか……ちょっと気持ちいいかも……」快楽に目覚めかけている。']}},
+deny:{base:['「むりむりむり！！」全力で逃げようとした。'],love:['「い、今はその……心の準備が……」もじもじしている。']}
+}
+};
+const MENTAL_HINTS=[
+{th:30,msgs:['……目に光がない。','どこか虚ろな様子だ。']},
+{th:20,msgs:['反応が鈍くなっている。','何も感じていないのかもしれない。']},
+{th:10,msgs:['焦点の合わない目で宙を見つめている。','……もう、壊れかけているのかもしれない。']}
+];
+// Broken (廃人) voice lines - used when mental has collapsed
+const BROKEN_VOICE=[
+'反応がない。','虚ろな瞳で天井を見上げている。','焦点の合わない目。何も映していない。',
+'口元が微かに動いたが、言葉にはならなかった。','人形のように動かない。','涎が唇の端から垂れている。',
+'何をされても、もう何も感じていないようだ。','時折、意味のない言葉を呟いている。',
+'壊れた玩具のように、されるがまま。','生きてはいる。ただ、それだけだ。',
+'かつての面影はもうどこにもない。','虚空を見つめたまま、微動だにしない。'
+];
+// ============================================================
+// CLIMAX SYSTEM
+// ============================================================
+const CLIMAX_BASE_TH=2000;
+const CLIMAX_WARN=[
+{r:.7,msgs:['身体が微かに震え始めている……','呼吸が少しずつ乱れてきた。','指先が小刻みに震えている。']},
+{r:.9,msgs:['限界が近い……！','全身が痙攣し始めた。もう保たない。','焦点が合わなくなっている。絶頂が迫っている。']}
+];
+const CLIMAX_DENY={
+rough:['全身を強張らせて煮えたぎる快楽を我慢している。','「ふざけんな……こんなとこで……っ！」歯を食いしばった。'],
+standard:['唇を噛み、震えながら絶頂に抗っている。'],
+soft:['「やだ……まだ……っ」身体を丸めて耐えている。','「我慢……する……っ」涙目で絶頂を押し殺した。'],
+formal:['「……っ、まだ……堪えられる……！」拳を握りしめている。','「この程度で……落ちるものか……っ」目を固く閉じた。']
+};
+const CLIMAX_GENERIC={
+male:{
+low:['身体がびくりと跳ねた。堪え切れず、吐精する。','声にならない声を上げ、射精した。'],
+mid:['全身を震わせ、二度目の射精。もう隠せない。','腰が跳ね、白濁が迸った。制御を失っている。'],
+high:['何度目かも分からない。射精の度に意識が遠のいていく。','白目を剥き、痙攣しながら射精し続けている。']}
+};
+const CLIMAX_VOICE={
+crocodile:{
+base:{low:['「……っ！」歯を食いしばるが堪え切れず、吐精した。鉤爪がシーツを引き裂く。','背中が仰け反った。'],
+mid:[],
+high:['声すら出ない。痙攣しながら射精を繰り返す。砂漠の王の威厳は跡形もない。']},
+love:{low:[],high:['「……っ、一緒に……」掠れた声で呟きながら果てた。']}},
+mihawk:{
+base:{low:['真紅色の瞳が見開かれた。声は出ない。ただ全身が震えた。','一瞬の空白。世界最強の剣士が、快楽に貫かれた。'],
+mid:['「……っ」微かな吐息と共に、静かに達した。唇が震えている。'],
+high:['幾度目かの絶頂。あの鋭い目が蕩けて潤んでいる。']},
+love:{low:['こちらの手を無言で握りしめながら、達した。']}},
+zoro:{
+base:{low:['「くっ……！テメ……ッ！」不意の絶頂に声が漏れた。悔しそうに唇を噛む。'],
+mid:['「あ゛っ……また……くそ……っ！」二度目。抗う力が弱まっている。'],
+high:['「あ……あぁ……っ」もう言葉にならない。誇りも何もかも溶けた。']},
+love:{low:['「……っ、……」涙目で睨みながら達した。'],high:['「……おまえも…イけ……！」しがみつきながら果てた。']}},
+sanji:{
+base:{low:['「あっ……！ やっ……出……っ！」堪える間もなく射精した。','身体が快楽に耐えきれず、あっけなく果てた。'],
+mid:['「またっ……くそ……何で、こんな……っ！」二度目。もう虚勢を張る余裕もない。'],
+high:['「あぁっ……もう……止まんねえ……っ」何度でもイかされる。']},
+love:{low:['「っ……好き、だ……」果てながら、まっすぐな目で見つめてきた。'],high:[]}},
+law:{
+base:{low:[],
+mid:[],
+high:[]},
+love:{low:[]}},
+smoker:{
+base:{low:[],
+mid:[],
+high:['「あ……っ、もう……駄目だ……」正義の男が、完全に堕ちた。']},
+love:{low:[]}},
+doffy:{
+base:{low:['サングラスの奥で、瞳孔が開いている。天夜叉の鎧に、罅が入った。'],
+mid:['「っ……くそ……」笑みが完全に消えた。二度目の射精。もう取り繕えない。'],
+high:['「あ゛っ……！」サングラスが外れた。涙と涎で顔がぐちゃぐちゃだ。天竜人の血筋も、天夜叉の威厳も、どこにもない。']},
+love:{high:[]}},
+buggy:{
+base:{low:[],
+mid:['「あ"ぁ"ーーッ!!出る!出るっ!!」半泣きで二度目の射精。恥も外聞もない。'],
+high:['「もうやだ……とまんない……」涙と涎と白濁でぐちゃぐちゃ。四皇の面影はどこにもない。']},
+love:{low:[],high:['「離すなよぉ……ぜったい離すなよ……！」しがみつきながら絶頂。']}}
+};
+// ============================================================
+// PAIR-SPECIFIC VOICE (Phase 3)
+// Key: "pcId_targetId" — directed pair
+// start: session start greetings (condition-based)
+// aibu/sex/sm/comm: {base/love:{low/mid/high:[]}}
+// climax: {base/love:{low/mid/high:[]}}
+// ============================================================
+const PAIR_VOICE={
+// ──────── Tier S ────────
+'crocodile_mihawk':{
+start:[
+{c:ts=>!ts.firstFlags._p_cromi,lines:[
+{t:'narration',s:'互いの顔を見て、一瞬の沈黙が流れた。この男とこういう関係になる日が来るとは。'},
+{t:'voice',s:'「……よォ、鷹の目。どうだ目覚めの気分は」'},
+{t:'voice',s:'クロコダイルを映す真紅の瞳には微かな好奇が灯っていた。'}]},
+{c:ts=>getFallen(ts)==='恋慕',lines:[]},
+{c:ts=>ts.abl.obey>=3,lines:[]},
+{c:ts=>true,lines:[
+{t:'narration',s:'鷹の目が、静かにこちらを捉えた。'},
+{t:'voice',s:'「……今日も来たのか。物好きだな」'}]}
+],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{high:[]}},
+sex:{base:{
+low:[],
+mid:['「……っ」ミホークの唇から初めて声が漏れた。あの鷹の目の焦点が揺れている。','世界最強の剣士を犯している。その事実が、砂漠の王の支配欲を満たしていく。'],
+high:[]},
+love:{high:[]}},
+sm:{base:{
+low:[],
+mid:['初めて、ミホークの表情が歪んだ。ここまで辿り着くのに、どれほどかかったか。'],
+high:['「……好きにしろ」信頼の形をした降伏。砂漠の王だけが勝ち取った言葉。']}},
+climax:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{high:['互いの名を呼び合いながら、同時に果てた。']}}
+},
+'mihawk_crocodile':{
+start:[
+{c:ts=>!ts.firstFlags._p_mihcro,lines:[
+{t:'narration',s:'葉巻の煙が、薄暗い部屋に漂っている。'},
+{t:'voice',s:'「……クハハ、鷹の目がおれをご指名とは光栄だな」'},
+{t:'voice',s:'「……始めるぞ」'}]},
+{c:ts=>getFallen(ts)==='恋慕',lines:[]},
+{c:ts=>true,lines:[
+{t:'narration',s:'砂の男が、挑戦的な笑みを浮かべている。'},
+{t:'voice',s:'「クハハ……やれるもんならやってみな」'}]}
+],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]},
+love:{high:[]}},
+sex:{base:{
+low:['クロコダイルを組み敷いた。あの冷笑が、一瞬だけ凍りついた。','「っ……！ てめェ……！」抵抗の声。だが身体は既にミホークのものを受け入れ始めている。'],
+mid:[],
+high:['「……っ、ぁ……ミホーク……」甘く蕩けるようなバリトンで名を呼ばれた。その声に、もう殺意はない。','砂の男が快楽に呑まれていく。それを見下ろす真紅色の瞳に、静かな愛着が宿っている。']},
+love:{high:[]}},
+climax:{base:{
+low:[],
+high:['「ミホーク……っ！」あの冷酷な男が、鷹の目の名を叫びながら果てた。']},
+love:{high:['「……逃げるなよ、鷹の目……」掠れた声で呟きながら達した。']}}
+},
+'doffy_law':{
+start:[
+{c:ts=>!ts.firstFlags._p_doflaw,lines:[
+{t:'narration',s:'ローの目に、底知れない憎悪が燃えている。だがドフラミンゴはそれすら愉しそうに眺めた。'},
+{t:'voice',s:'「フッフッフ……久しぶりだな、ロー。元気そうで何よりだ」'},
+{t:'voice',s:'「……殺す」短い宣言。だが身体は拘束されて動かない。'}]},
+{c:ts=>getFallen(ts)==='服従',lines:[
+{t:'narration',s:'ローは床に膝をつき、ドフラミンゴを待っていた。かつての反逆者の面影はない。'},
+{t:'voice',s:'「フフ……いい子だ、ロー。コラソンが見たらどう思うかなァ」'}]},
+{c:ts=>true,lines:[
+{t:'narration',s:'ドフラミンゴのサングラスの奥で、瞳が獣のように光っている。'},
+{t:'voice',s:'「さあ始めようか、ロー。ようこそ、おれのファミリーへ」'}]}
+],
+aibu:{base:{
+low:['ローの肌を指でなぞる。糸の能力で自由を奪われた身体は、何をされようと逃げられない。','「触るな……っ！」殺意のこもった目。だがその身体は、既にドフラミンゴの掌中にある。'],
+mid:['「っ……」ローの呼吸が乱れた。苦しみが顔に滲む。','「嫌がるなよ、ロー。お前の身体は正直だぜ？」指先でローの変化を確かめながら、嗤った。'],
+high:['もう声を殺す余裕もない。コラソンの仇に身体を開かされている。その屈辱すら、快感に塗り替えられていく。']}},
+sex:{base:{
+low:['「やめろ……っ！ ドフラミンゴ！！」絶叫に近い拒絶。だが糸の拘束からは逃れられない。','ローの身体に侵入していく。歪んだ支配欲が満たされていく。'],
+mid:['「フフフ……いい声出すじゃねェか」ローの抵抗が弱まっていく。身体が裏切り始めている。','「くそ……っ、何故……」理性が快感の波に沈んでいく。'],
+high:['「認めろよ、ロー。お前はおれのものだ」完全に支配した。ローの目から、最後の抵抗の光が消えた。']},
+love:{high:['「……ドフラミンゴ……っ」憎悪が別の感情に変わった声。天夜叉は満足げに笑った。']}},
+sm:{base:{
+low:[],
+mid:[],
+high:['「……っ、やめてくれ……」初めて、ローの口から懇願に近い声が漏れた。ドフラミンゴは心底愉しそうだ。']}},
+climax:{base:{
+low:['「あ゛っ……！」ローが果てた。コラソンの仇の手の中で。屈辱が涙となって頬を伝う。'],
+high:['「ドフラミンゴ……っ！」もう憎しみなのか快楽なのか分からない声で、叫びながら達した。']}}
+},
+'law_doffy':{
+start:[
+{c:ts=>!ts.firstFlags._p_lawdof,lines:[
+{t:'narration',s:'ドフラミンゴが余裕の笑みを浮かべている。拘束されていてもなお、この男は人を見下す。'},
+{t:'voice',s:'「フッフッフ、おれを犯すつもりか？ 面白ェ冗談だ」'},
+{t:'voice',s:'「冗談じゃない。嗤っていられるのも今のうちだ」'}]},
+{c:ts=>ts.marks.submit>=2,lines:[
+{t:'narration',s:'サングラスの奥の目が、以前とは違う光を帯びている。恐怖か、期待か。'},
+{t:'voice',s:'「……始めろよ、ロー。待ちくたびれた」もはや虚勢か本音か判別がつかない。'}]},
+{c:ts=>true,lines:[]}
+],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]}},
+sex:{base:{
+low:[],
+mid:['コラソンの仇を犯している。復讐なのか。解放なのか。ロー自身にも分からない。'],
+high:['サングラスが外れた。充血した目が、涙で滲んでいる。天竜人の血筋も天夜叉の威厳もない、ただただ欲に流された男がそこにいた。']},
+love:{high:['「……ロー……っ」あのドフラミンゴが、すがるような声で名前を呼んだ。']}},
+climax:{base:{
+low:[],
+high:[]}}
+},
+// ──────── Tier A ────────
+'mihawk_zoro':{
+start:[
+{c:ts=>!ts.firstFlags._p_mihzo,lines:[
+{t:'narration',s:'かつての弟子が目の前にいる。鷹の目は、あの日と同じように冷静にゾロを見つめている。'},
+{t:'voice',s:'「……鍛え直してやる。別のやり方でな」'}]},
+{c:ts=>true,lines:[{t:'voice',s:'「構えろ、ロロノア。」'}]}],
+aibu:{base:{
+low:['ミホークの手がゾロの身体に触れた。ゾロの筋肉が反射的に強張る。','「っ……、何を……」かつて仰ぎ見た男の手が、全く違う目的で自分に触れている。'],
+mid:[],
+high:['「はぁ……っ、ミホーク……」もう師とは呼べない。一人の男として、その手に身を委ねている。']}},
+sex:{base:{
+low:[],
+mid:[],
+high:[]}}
+},
+'zoro_mihawk':{
+start:[
+{c:ts=>!ts.firstFlags._p_zomih,lines:[
+{t:'narration',s:'部屋に佇むかつての弟子の姿にミホークは薄く笑った。初めて「興味」ともまた違う感情が灯った。'}]},
+{c:ts=>true,lines:[]}],
+aibu:{base:{
+low:['不器用な手が、ミホークの肌に触れた。ミホークは微動だにしない。試されている。','「チッ……どうすりゃいいんだよ……」照れ隠しの舌打ち。耳が赤い。'],
+mid:[],
+high:[]}},
+sex:{base:{
+low:['目標だった男を押し倒す。ミホークは抵抗しない。あの金色の目が、じっと見つめている。','震える手で腰を進めた。世界最強の剣士の内側。畏怖と欲望が醜く混ざり合う。'],
+mid:[],
+high:['言葉にならない想いが溢れる。目標を超えるとは、こういうことだったのか。']}}
+},
+'doffy_crocodile':{
+start:[
+{c:ts=>true,lines:[
+{t:'voice',s:'「フフフフフ!!砂漠の王を手懐けるのも悪くねェ」'},
+{t:'voice',s:'「クハハ……寝言は寝て言え、フラミンゴ野郎」'}]}],
+aibu:{base:{
+low:['糸でクロコダイルの手足を拘束し、指先で顎を持ち上げた。冷たい目で睨まれる。','「いい目だ。その反抗的な目が好きだぜ、クロコダイル」'],
+mid:[],
+high:[]}},
+sex:{base:{
+low:['「殺す……必ず殺す……ドフラミンゴ……っ！」それでも身体は組み敷かれている。'],
+mid:['「フフフ……随分と上品な声で鳴くじゃねェか」クロコダイルのプライドを嬲るように腰を動かす。'],
+high:['もう声を殺せない。砂漠の王が、天夜叉の下で崩されていく。']}}
+},
+'crocodile_doffy':{
+start:[
+{c:ts=>true,lines:[
+{t:'voice',s:'「クハハ……いいザマだなァ、ドフラミンゴ君」'},
+{t:'voice',s:'「フフ……いい趣味じゃねェか、ワニ野郎」サングラスの奥の目は笑っていない。'}]}],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]}},
+sex:{base:{
+low:[],
+mid:[],
+high:['「もっと……くそ……もっと……」あのドフラミンゴが、クロコダイルに縋っている。']}}
+},
+'zoro_sanji':{
+start:[
+{c:ts=>true,lines:[]}],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]}},
+sex:{base:{
+low:[],
+mid:[],
+high:[]}}
+},
+'sanji_zoro':{
+start:[
+{c:ts=>true,lines:[]}],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]}},
+sex:{base:{
+low:[],
+mid:[],
+high:['「……ゾロ……お前の中……すげえ……」素直な本音。喧嘩の延長が、別の何かに変わった。']}}
+},
+'crocodile_buggy':{
+start:[
+{c:ts=>true,lines:[
+{t:'voice',s:'「クハハ……おいバギー、借りたものはきっちり返してもらわねェと困るぜ？」'},
+{t:'voice',s:'「ギャーッ!!悪魔ーーーッ!!!」ガタガタ震えている。'}]}],
+aibu:{base:{
+low:[],
+mid:['「ひゃっ……あっ……やめ……」声が裏返っている。抵抗する力すらない。'],
+high:['「クロコダイルぅ……もっと……」媚びるような声。四皇の威厳は欠片もない。']}},
+sex:{base:{
+low:[],
+mid:[],
+high:[]}}
+},
+'mihawk_buggy':{
+start:[
+{c:ts=>true,lines:[
+{t:'narration',s:'ミホークが静かに部屋に入った。バギーが壁際まで後退した。'},
+{t:'voice',s:'「ちょ、ちょっと待て鷹の目！！話し合おう！！話せば分かる！！！」'},
+{t:'voice',s:'「……騒がしいな」ミホークは何も聞いていない。'}]}],
+aibu:{base:{
+low:[],
+mid:[],
+high:[]}}
+}
+};
+// ============================================================
+// ACTION NARRATION (Phase 1: per-command physical descriptions)
+// Each entry: command_id → { low:[], mid:[], high:[] }
+// low=resistance phase, mid=yielding, high=accepting
+// Body-type variants: {m:[], f:[], any:[]} — falls back to any
+// ============================================================
+const ACTION_NARR={
+// --- AIBU ---
+aibu:{
+any:{low:['指先が肌の上を滑っていく。体温を確かめるように、ゆっくりと。','身体の輪郭をなぞるように、丹念に手を這わせた。','首筋から鎖骨、胸元へ。指先が敏感な部分を探り当てていく。'],
+mid:['指が這うたびに、肌が微かに粟立つ。身体が刺激を覚え始めている。','触れるだけで反応するようになった肌を、執拗に撫で回す。','敏感になった身体を知り尽くしたように、的確に弱い箇所を攻めていく。'],
+high:['指が触れる前から身体が反応している。条件反射のように肌が震える。','もう触れるだけで甘い吐息が漏れる。身体が完全に開発されている。','軽く撫でるだけで全身が痙攣する。過敏になった身体が快楽を求めて震えている。']}},
+mune:{
+any:{low:['胸に手を伸ばし、布地の上から揉みしだいた。','掌で胸の膨らみを包み込むように揉む。指先が先端を掠めた。','胸を鷲掴みにし、親指で乳首を転がすように弄った。'],
+mid:['乳首を指先で摘み、引っ張るように刺激する。先端が硬く尖っていく。','胸を揉む手つきに合わせて、微かに身体が揺れている。逆らえなくなっている。'],
+high:['胸を揉むだけで腰が震え始めた。乳首は触れるだけで電撃のような快感が走るようだ。','自ら胸を突き出すような姿勢。もっと触ってほしいと身体が訴えている。']}},
+anal_aibu:{
+any:{low:['後孔に指先を這わせる。窄まりが反射的にきゅっと締まった。','臀部を割り開き、隠された窄まりをゆっくりと指で撫でた。','指先にローションを纏わせ、後孔の皺を丁寧に解していく。'],
+mid:['指の腹で窄まりを押し広げるように揉む。少しずつ力が抜けてきている。','後孔が指先を受け入れ始めた。ぬるりと第一関節まで沈んでいく。'],
+high:['指が容易く沈み込む。もう後孔は指を歓迎するかのように蠢いている。','後孔が指を咥え込むように締め付けてくる。開発が進んでいる証拠だ。']}},
+kaichou:{
+any:{low:['脚を押し開き、秘部を露わにさせた。普段は隠された場所が灯りの下に晒される。','指で花弁をそっと押し開く。奥の桃色の粘膜が覗いた。'],
+mid:['押し開いた秘部から、透明な蜜が糸を引いている。身体は正直だ。'],
+high:['自ら脚を開き、秘部を見せている。羞恥を超えた先にある、別の悦び。']}},
+nugasu:{
+any:{low:['衣服に手をかけた。布が肌から剥がされていく。','一枚、また一枚。纏っていた布が床に落ちる。','抵抗する腕を押さえつけ、衣服を剥ぎ取った。'],
+mid:['半ば諦めたように力を抜いた身体から、衣服を滑らせていく。'],
+high:['命じるまでもなく、自ら衣服に手をかけ始めた。']}},
+// --- COMM ---
+kiss:{
+any:{low:['顎を掴み、唇を奪った。一方的な口づけ。','不意に唇を重ねた。驚きで身体が強張る。'],
+mid:['唇が重なる。最初は硬かった唇が、次第に柔らかく解けていく。','深く、絡みつくようなキス。舌が相手の口腔を探る。'],
+high:['唇が触れ合った瞬間、自ら舌を差し出してきた。貪るような口づけ。','離れようとすると追いかけるように唇を寄せてくる。']}},
+skinship:{
+any:{low:['そっと肩に手を置いた。','隣に座り、距離を詰めた。体温が伝わるほど近くに。'],
+mid:['頭を撫でてやると、少しだけ力が抜けたようだ。','手を握ると、微かに握り返してきた。'],
+high:['身体を寄せると、自然と寄りかかってきた。','手を繋ぐと、指を絡めてきた。小さく息を吐く。']}},
+// --- SEX ---
+seijou:{
+m:{low:['脚を押し開き、後孔に先端を押し当てた。ゆっくりと腰を沈めていく。','身体を組み敷き、臀部を持ち上げて腰を進めた。きつい圧迫感。'],
+mid:['律動が一定のリズムを刻み始めた。腸壁を擦る感触が全身を支配していく。','奥まで突き入れ、そのまま腰を回すように動かす。内壁が肉棒の形を覚えていく。'],
+high:['打ちつけるたびに甘い水音が響く。もう身体は完全に受け入れている。','激しいピストンに合わせて、身体が揺れる。その律動はもはや一つの生き物のようだ。']},
+f:{low:['脚の間に身体を割り込ませ、秘裂に先端を押し当てた。ゆっくりと沈めていく。','覆いかぶさるように身体を重ね、一突きで奥まで貫いた。'],
+mid:['律動が一定のリズムを刻み始めた。膣壁が締め付けてくる。','奥まで突き入れるたびに、身体の奥から熱い蜜が溢れ出す。'],
+high:['打ちつけるたびに甘い水音が響く。溢れた蜜が二人の間を濡らしている。','激しいピストン。自ら腰を持ち上げ、より深い結合を求めてくる。']}},
+kouhai:{
+m:{low:['四つん這いにさせ、背後から腰を進めた。逃げ場のない体勢。','後ろから圧し掛かるように、一気に奥まで突き入れた。'],
+mid:['背後から打ちつけるたびに、臀部が波打つ。腰が逃げようとするが、掴んで引き戻す。','一突きごとに奥まで貫く。もう腕の力が抜けて、シーツに顔を埋めている。'],
+high:['背後から激しく打ちつける。自ら腰を突き出して、より深い挿入を求めている。','獣のような体勢で、ただ快楽を貪り合っている。']},
+f:{low:['うつ伏せにさせ、背後から腰を進めた。逃げ場のない体勢。','後ろから覆いかぶさるように、奥まで挿入した。'],
+mid:['背後から突き上げるたびに、身体が揺れる。膣が締め付けて離さない。'],
+high:['自ら腰を持ち上げ、より深い挿入を求めている。内壁が脈打つように蠢く。']}},
+seijou_a:{
+any:{low:['後孔に先端を押し当てた。窄まりが抵抗するように締まるが、構わず腰を進める。','腸壁を押し広げながら、ゆっくりと奥へ。きつい締め付けが亀頭を包む。','脚を抱え上げ、後孔に屹立を埋めていく。少しずつ、確実に。'],
+mid:['後孔が肉棒を呑み込んでいく。最初の抵抗は消え、内壁が形を覚えたように絡みついてくる。','腰を打ちつけるたびに、腸壁が擦られ、未知の快感が脊髄を駆け上がる。'],
+high:['もはや後孔は貪欲に肉棒を呑み込んでいる。引き抜こうとすると、締め付けて離さない。','激しいピストンに合わせて、自ら腰を揺らしている。後孔で感じる身体に作り変えられてしまった。']}},
+kouhai_a:{
+any:{low:['四つん這いにさせ、背後から後孔に先端を押し当てた。一気に腰を沈める。','臀部を鷲掴みにし、後孔を押し広げるように挿入していく。'],
+mid:['背後からの突き上げが、腸の奥を抉る。逃げようとする腰を掴んで引き戻す。','律動のたびに肉と肉がぶつかる音が響く。後孔は既に抵抗を忘れている。'],
+high:['背後からの容赦ないピストン。もう自分から腰を振って迎え入れている。','臀部を突き出して自ら深い挿入を求める。もう恥も外聞もない。']}},
+zenritsusen:{
+any:{low:['指を後孔にゆっくりと沈め、前立腺の位置を探る。腸壁の奥に、小さな膨らみがあった。','指の腹で前立腺を押し込むように刺激する。全く未知の感覚が下腹部を貫く。'],
+mid:['的確に前立腺を擦り上げる。指が動くたびに、下腹部から脳天へ電撃が走る。','前立腺への刺激が止まない。腰が勝手に浮き上がり、逃げることすらできない。'],
+high:['前立腺を的確に捉え続ける指に、もう抵抗する意志すら残っていない。ただ甘い痺れに身を委ねている。']}},
+// --- SERVE ---
+fera:{
+any:{low:['口の前に屹立を突きつけた。唇をこじ開けるように、先端を押し込む。','怯える口腔に無理やり挿入する。舌の上を異物が蹂躙していく。'],
+mid:['口腔が肉棒の形に馴らされていく。舌がぎこちなく裏筋を舐め上げた。','吐き気を堪えながら口を動かしている。だが舌の使い方は確実に上達している。'],
+high:['命じられるまでもなく膝をつき、口を開けた。慣れた舌遣いで奉仕を始める。','喉奥まで呑み込みながら、蕩けたような目でこちらを見上げている。']}},
+tein:{
+any:{low:['手を取り、屹立に導いた。震える指が恐る恐る茎を握る。','ぎこちない手つきで上下に動かしている。力加減が分からないようだ。'],
+mid:['手つきが少しずつ滑らかになってきた。先走りを潤滑にして、茎を扱く。','リズムを覚え始めた手が、的確に感じる箇所を刺激するようになった。'],
+high:['慣れた手つきで巧みに扱く。亀頭を掌で包み、裏筋を親指で擦り上げる。','奉仕の手つきに迷いがない。どう触れば気持ちいいか、完全に理解している。']}},
+// --- SM ---
+spank:{
+any:{low:['振りかぶった掌が、臀部を打った。乾いた音が部屋に響く。','剥き出しの臀部に、力を込めて叩きつける。赤い掌の跡が浮かび上がった。'],
+mid:['繰り返し打たれた臀部が真っ赤に腫れ上がっている。それでもなお、手を止めない。','叩くたびに身体が跳ねる。しかし、悲鳴の中に別の色が混じり始めた。'],
+high:['打たれるたびに、腰が微かに持ち上がる。痛みが快感の引き金になっている。','赤く腫れた臀部を差し出すように突き出してくる。もっとと言わんばかりに。']}},
+muchi:{
+any:{low:['鞭が風を切り、肌を打った。鋭い痛みが走る。赤い線が肌に刻まれた。','容赦なく鞭を振るう。打たれるたびに身体が大きく跳ねる。'],
+mid:['幾重にも走った鞭の跡。肌が赤く腫れ上がり、熱を持っている。','鞭が振り下ろされるたびに、恐怖と――別の何かで身体が震える。'],
+high:['鞭の気配を感じただけで身体が反応する。痛みの先にある快楽を、身体が覚えてしまった。']}},
+kousoku:{
+any:{low:['縄が手首に食い込む。抵抗するほどきつく締まる仕組みだ。','両腕を背中で縛り上げた。もう逃げることはできない。'],
+mid:['縛られた身体が小刻みに震えている。自由を奪われた無力感が、全身を支配していく。'],
+high:['縛られることに安堵すら覚えている。自由を放棄した先にある、奇妙な解放感。']}},
+// --- TOOL ---
+rotor:{
+any:{low:['スイッチを入れた小型の振動具を、敏感な箇所に押し当てた。','低い唸りを上げる振動具が、肌の上を這い回る。'],
+mid:['振動が的確に急所を刺激し続ける。逃げようとしても振動具は追いかけてくる。'],
+high:['振動具を押し当てるだけで、腰が跳ねる。過敏になった身体に、機械的な刺激は残酷なほど効く。']}},
+vibe:{
+f:{low:['膣口にバイブの先端を押し当て、ゆっくりとスイッチを入れながら挿入していく。','ぬるりとバイブが膣内に沈んでいく。先端の振動が内壁を直接刺激する。'],
+mid:['振動するバイブが膣の奥を揺さぶり続ける。自分では止められない快感。'],
+high:['バイブを出し入れするたびに、蜜が溢れ出す。もう身体が道具なしでは満足できなくなっている。']}},
+anal_vibe:{
+any:{low:['後孔にバイブの先端を押し当て、ゆっくりとねじ込んでいく。振動が腸壁を直接揺さぶる。','後孔に異物が押し込まれていく。加えて容赦ない振動が内側から責め立てる。'],
+mid:['振動するバイブが腸内を蹂躙している。前立腺を掠めるたびに、腰が跳ね上がる。'],
+high:['バイブの振動に合わせて、後孔が収縮を繰り返している。自ら腰を揺らし、より深い刺激を求めている。']}},
+candle:{
+any:{low:['傾けた蝋燭から、溶けた蝋がぽたりと肌に落ちた。一瞬の熱さが走る。','白い肌の上に、赤い蝋の点が落ちていく。一滴ごとに身体が跳ねる。'],
+mid:['蝋の跡が幾筋も走る肌。熱さの後に訪れる微かな快感を、身体が覚え始めている。'],
+high:['蝋が落ちる瞬間を待つように、肌が粟立っている。痛みと快感の境界が溶けている。']}},
+nipple_cap:{
+any:{low:['乳首に吸着具をぴたりと貼り付けた。ひんやりとした感触の後、じわじわと締め付けが始まる。'],
+mid:['吸着具に常に刺激されている乳首が、敏感に尖り続けている。'],
+high:['吸着具を外しても、乳首は硬く勃起したまま。もう常に敏感な状態が維持されている。']}},
+mouth_gag:{
+any:{low:['口にボールギャグを押し込み、後頭部でベルトを締めた。もう声は出せない。','顎を掴み、開かせた口にギャグを嵌め込む。抗議の声がくぐもった唸りに変わった。'],
+mid:['ギャグ越しに漏れるくぐもった声。涎が唇の端から滴り落ちている。'],
+high:['もう抗議の声すら上げない。ギャグを嵌められることに慣れ切っている。']}},
+eye_mask:{
+any:{low:['目を覆うようにアイマスクを装着した。視界が完全に奪われ、他の感覚が研ぎ澄まされていく。','暗闇の中に放り込まれた。何が来るか分からない恐怖が、全身を緊張させる。'],
+mid:['視覚を奪われた身体が、わずかな気配にも過敏に反応する。触れられる前から震えている。'],
+high:['暗闇の中で、ただ快感だけが全てになっている。見えない分、感覚が何倍にも増幅されている。']}},
+// --- UKE ---
+kijou_suru:{
+f:{low:['腰を下ろし、自ら結合した。重力で奥まで一気に貫かれる。','跨るように腰を落とす。膣の奥まで一気に呑み込んだ。'],
+mid:['腰を揺らし始めた。自分のペースで、一番感じる角度を探っている。'],
+high:['激しく腰を打ちつけてくる。もう遠慮も羞恥もない。ただ快楽を求めて。']},
+m:{low:['跨がるように腰を下ろした。相手の竿が後孔に沈んでいく。重力で否応なく奥まで。','自ら後孔に挿入を受け入れた。逃げ場のない体勢。'],
+mid:['腰をぎこちなく揺らしている。自分から動く屈辱と、奥を突かれる快感が混ざっている。'],
+high:['激しく腰を振り始めた。もう恥も外聞もない。ただ快楽を貪るために腰を動かしている。']}},
+kijou_a_suru:{
+any:{low:['後孔に先端を当て、自らの体重で沈み込んでいく。重力が容赦なく奥まで押し込む。'],
+mid:['後孔で相手を咥え込んだまま、ゆっくりと腰を動かし始めた。'],
+high:['後孔で相手を締め上げながら、激しく腰を振っている。']}},
+// --- HARD ---
+irama:{
+any:{low:['頭を掴み、喉奥まで一気に突き入れた。嗚咽と咳き込む音が響く。','口腔を蹂躙するように、深く激しくピストンする。涙と涎が顎を伝う。'],
+mid:['喉奥の収縮が肉棒を締め付ける。嗚咽混じりの呼吸が、奇妙なリズムを刻む。'],
+high:['もう嘔吐反射すら起きない。喉が完全に開発され、根元まで呑み込んでいる。']}},
+kankin:{
+any:{low:['暗い部屋に一人きり。外の物音すら聞こえない。圧倒的な孤独と恐怖。'],
+mid:['時間の感覚が消えていく。暗闇の中で、ただ解放を待つしかない。'],
+high:['暗闇の中で膝を抱えている。もう抵抗する気力すら残っていない。']}},
+kyousei:{
+any:{low:['自由を奪われたまま、奉仕を強いられている。逃げ場はどこにもない。','拘束された状態で、一方的に身体を弄ばれる。屈辱的な姿勢。'],
+mid:['拘束されたまま犯され続ける。抵抗できない無力さが、心を蝕んでいく。'],
+high:['もう拘束がなくても逃げないだろう。服従が身体に染み付いている。']}},
+// --- SPECIAL ---
+shuchi:{
+any:{low:['大鏡の前に立たせた。自分の淫らな姿が余すところなく映し出されている。','鏡に映る自分の姿。赤らんだ肌、乱れた髪、潤んだ瞳。見たくない現実。'],
+mid:['鏡越しに目が合った。映っているのは、快楽に身を委ね始めた自分自身。'],
+high:['鏡の中の自分を見ながら、もっと乱れた姿が見たいと思い始めている。']}},
+yagai:{
+any:{low:['首輪を繋がれ、外に連れ出された。誰かに見られるかもしれない恐怖。','ひと気のない場所だが、いつ誰が来るか分からない。風が素肌を撫でる。'],
+mid:['外気に晒された肌が過敏になっている。見つかるかもしれないスリルが、感覚を鋭くする。'],
+high:['見られたいという欲求が芽生え始めている。羞恥が快感の触媒になっている。']}},
+satsuei:{
+any:{low:['カメラのレンズが向けられた。記録されるという事実が、恐怖と羞恥を倍増させる。','シャッター音が響くたびに、身体が強張る。この姿が永遠に残るのだ。'],
+mid:['カメラに向かって、命じられるままにポーズを取らされている。'],
+high:['レンズを意識して、自ら挑発的な表情を作り始めた。']}},
+shinpu:{
+any:{low:['エプロン一枚の姿で、食事の支度をさせられている。背中が丸見えだ。','新妻ごっこ。形だけの日常が、奇妙な親密さを生んでいく。'],
+mid:['エプロン姿で甲斐甲斐しく世話を焼いている。演技なのか本気なのか、境界が曖昧になっていく。'],
+high:['命じられたわけでもなく、自然と世話を焼いている。それが心地よいのだと、認めてしまった。']}},
+// --- HAKI ---
+haou:{any:{low:['覇王色の覇気が解放された。空気が震え、壁に亀裂が走る。'],mid:['圧倒的な威圧が全身を押し潰す。息すらまともにできない。'],high:['覇王色の前に、もはや立っていることすらできない。']}},
+busou:{any:{low:['武装色の覇気で縛り上げた。鋼鉄よりも固い拘束。どんな力でも解けない。'],mid:['覇気の拘束が全身を締め付けている。もがくほどに食い込んでいく。'],high:['覇気に包まれたまま、抵抗を完全に諦めた。']}},
+kenbun:{any:{low:['見聞色で心の奥を覗き込む。隠したはずの感情が、全て筒抜けになる。'],mid:['心の壁が見聞色に穿たれていく。もう何も隠せない。'],high:['心を完全に読まれている。恥ずかしいほどの本音が、全て見透かされている。']}},
+// --- New Commands ---
+mimi:{
+any:{low:['耳朶に唇を寄せ、ゆっくりと舌先で輪郭をなぞった。そこへ熱い吐息を吹きかける。','耳の縁を唇で挟み、舌先で耳孔を刺激する。直接脳に響くような、濡れた音。'],
+mid:['耳朶を甘噛みしながら、舌を差し入れる。濡れた水音が鼓膜を直接震わせる。','吐息だけで身体が震える。耳は既に性感帯と化している。'],
+high:['耳に息を吹きかけるだけで全身が痙攣する。完全に弱点を掴んだ。','耳朶を舐められるたびに、腰から力が抜けていく。もう自分では支えられない。']}},
+chikubi:{
+any:{low:['突起を指先で摘み、軽く引っ張った。次いで爪の先で弾くように刺激する。','乳首を口に含み、舌先で転がすように弄ぶ。歯を軽く立てると、鋭い反応。'],
+mid:['執拗に乳首を責め続ける。吸い、摘み、弾き、噛む。先端は硬く勃起し、触れるだけで電撃が走る。','乳首を強く摘み上げ、引き伸ばした。先端が鬱血して赤黒く染まっていく。'],
+high:['既に過敏になった乳首に、容赦ない刺激を重ねる。胸だけで達してしまいそうなほど感度が上がっている。','乳首を弄られるだけで腰が浮く。胸の先端が身体の中で最も敏感な場所になってしまった。']}},
+kabuto:{
+any:{low:['互いの先端を合わせた。亀頭同士が触れ合い、先走りが混じり合う。','包皮を引き剥がし、剥き出しの亀頭同士を擦り合わせる。直接的で、残酷な快感。'],
+mid:['先走りで濡れた亀頭を擦り合わせ続ける。互いの体温と脈動が伝わってくる。','先端を押し当て、包皮で互いの亀頭を包み込むように擦り合わせた。'],
+high:['擦り合わされるたびに、互いの先端が震える。どちらが先に果てるかの競い合い。','もう先走りが止まらない。亀頭同士を合わせるだけで、腰が砕けそうになる。']}},
+taimenzai:{
+f:{low:['向かい合い、抱き寄せるように身体を重ねた。密着した状態でゆっくり奥まで沈めていく。','額と額が触れ合う距離。互いの吐息が頬にかかる。最も親密な体勢での結合。'],
+mid:['互いの体温が溶け合う距離。動くたびに全身が擦れ合い、密着面の全てが快感に変わる。'],
+high:['しがみつくように互いを求め合っている。もう離せない。離したくない。']},
+m:{low:['向かい合って抱き寄せ、後孔にゆっくりと沈めた。顔が至近距離。逃げ場がない。','互いの表情が全て見える距離。恥も痛みも快感も、全て筒抜けになる体勢。'],
+mid:['額を合わせたまま腰を動かす。吐息が互いの唇にかかる。'],
+high:['抱き合ったまま貪り合っている。二つの身体が一つになったかのような錯覚。']}},
+taimenzai_a:{
+any:{low:['向かい合い、後孔に先端を押し当てた。この距離では表情が全て見える。','目を逸らすことも許されない。見つめ合ったまま、後孔に沈んでいく。'],
+mid:['互いの呼吸が重なる距離で、後孔を抉る。表情が崩れていくのが手に取るように分かる。'],
+high:['しがみつきながら、自ら腰を揺らしている。もう恥ずかしいとか、そういう感情は消え失せた。']}},
+ashinage:{
+any:{low:['足元に跪かせ、足の指を口に含ませた。屈辱的な姿勢。','足裏を舌で舐め上げさせる。人としての尊厳を踏みにじる行為。'],
+mid:['命じられるまま、足の指を一本ずつ丁寧に舐めている。目には屈辱と、それとは別の何かが宿っている。'],
+high:['自ら進んで足に口づけている。服従が骨の髄まで染み込んだ。']}},
+zenshin:{
+any:{low:['全身を使って奉仕させる。手、口、舌、胸、太腿。持てる全てを動員して快楽を提供させた。'],
+mid:['慣れた動きで全身を使いこなしている。どこをどう使えば気持ちいいか、身体が覚えてしまった。'],
+high:['もはや奉仕の達人。身体の隅々まで快楽装置と化している。自らの技で相手を悦ばせることに快感を覚えている。']}},
+kubijime:{
+any:{low:['首に手をかけ、ゆっくりと圧を加えていく。気道が狭まり、息が詰まる。','締め上げた首の下で、脈動が激しく打っている。意識の境界が揺らぐ。'],
+mid:['締め上げては緩め、緩めては締める。酸欠と解放を繰り返すたびに、異常な快感が脳を灼く。'],
+high:['首を絞められることに、身体が順応し始めている。息が止まる瞬間の、あの甘い痺れを求めて。']}},
+piercing:{
+any:{low:['消毒した針を肌に押し当てた。一呼吸の間を置いて、躊躇なく貫通させる。','鋭い痛みと共に、金属が肉を貫いた。永遠に消えない印が、身体に刻まれた。'],
+mid:['新たなピアスが肉を貫く。もう何個目かも分からない。身体が穴だらけになっていく。'],
+high:['針が肌を刺す瞬間に、甘い快感が走った。痛みが快楽に変換される身体になってしまった。']}},
+kanchou:{
+any:{low:['管を後孔に挿入し、ゆっくりと洗浄液を注ぎ込んでいく。腸壁が冷たい液体に押し広げられる。','腹が膨らんでいく。内臓が圧迫され、耐え難い膨満感が下腹部を支配する。'],
+mid:['注入と排出を繰り返す。屈辱的な行為に、身体が慣れ始めている。'],
+high:['もう抵抗もしない。腸を洗われることが日常になってしまった。']}},
+rakuin:{
+any:{low:['赤熱した焼き印を掲げた。肌に押し当てた瞬間、焦げる臭いと共に、想像を絶する激痛が全身を貫いた。','肌に刻まれた所有の印。二度と消えない。誰のものかを永遠に身体が記憶する。']}},
+kairoseki:{
+any:{low:['海楼石の手錠がかちりと嵌った。悪魔の実の能力者なら、全身から力が抜け落ちる。','海楼石特有の脱力感。自慢の力が完全に封じられ、ただの人間以下に堕とされた。'],
+mid:['海楼石に繋がれたまま、なすがままにされている。力を封じられた屈辱が、心を削っていく。'],
+high:['もう海楼石がなくても逃げないだろう。力の有無に関係なく、心が折れている。']}},
+misemono:{
+any:{low:['人前に引きずり出された。好奇と欲望の視線が、裸身に突き刺さる。','見知らぬ者たちの前で恥ずかしい姿を晒されている。逃げ場はどこにもない。'],
+mid:['衆目の中で弄ばれている。観衆の嗤い声が、恥辱を何倍にも増幅させる。'],
+high:['見られることに快感を覚え始めた。観衆の視線が、肌を撫でるように感じる。']}},
+// --- Session End ---
+kyuusoku:{
+any:{low:['傷を手当てし、水と食料を与えた。毛布をかけ、十分な休息を取らせる。','荒い呼吸が次第に落ち着いていく。今日はここまでだ。'],
+mid:['手当てをしてやると、警戒しながらも身を委ねた。少しずつ力が戻っていく。'],
+high:['差し出した水を素直に受け取った。手当てを受ける姿に、もう抵抗の色はない。']}},
+modoru:{
+any:{low:['鎖を繋ぎ直し、独房へ戻した。重い扉が閉まる音が廊下に響く。','今日の調教はここまでだ。後ろ手に拘束し、部屋へ連れ戻す。'],
+mid:['独房へ戻す。もう暴れる気力もないようだ。'],
+high:['部屋に戻れと告げると、自ら歩いて独房へ向かった。']}}
+};
+// ============================================================
+// FIRST-TIME EVENT DESCRIPTIONS (Phase 2)
+// flag: key in ts.firstFlags, cmds: triggering command IDs
+// narr: multi-line narration array, voice: reaction lines
+// Body-type: m/f/any (falls back to any)
+// ============================================================
+const FIRST_EVENTS=[
+{flag:'kiss',cmds:['kiss'],
+narr:{any:['顎を掴み、顔を近づけた。唇と唇の距離が縮まっていく。','触れ合った唇は、驚くほど柔らかかった。一方的な口づけ。相手の体温が唇越しに伝わってくる。']},
+voice:{any:['目を見開いている。何が起きたのか理解が追いついていない。','硬直したまま、されるがままになっている。唇が微かに震えた。']}},
+{flag:'touch',cmds:['aibu','mune','skinship'],
+narr:{any:['初めて触れた肌は、思いのほか熱かった。','指先が肌に触れた瞬間、びくりと全身が跳ねた。緊張で強張った身体。これが、最初の接触。']},
+voice:{any:['触れられることへの根源的な恐怖。他者の手が自分の身体の上にある、という異物感。','息を呑む音が聞こえた。警戒と困惑が入り混じった目でこちらを見ている。']}},
+{flag:'strip',cmds:['nugasu'],
+narr:{any:['衣服に手をかけた。最後の防壁が剥がされていく。','布が肌から離れるたびに、隠されていた素肌が晒されていく。もう何も纏っていない。無防備な裸体が、目の前にある。']},
+voice:{any:['身体を腕で覆い隠そうとしている。見られることへの本能的な拒絶。','顔が真っ赤に染まっている。裸を晒す屈辱に、唇が震えた。']}},
+{flag:'anal',cmds:['seijou_a','kouhai_a'],
+narr:{m:['後孔に先端を押し当てた。窄まりが本能的にきつく締まる。','力を込めて腰を進めると、抵抗を押し破って亀頭が呑み込まれた。熱く、きつい圧迫感。未開の腸壁が異物を拒むように収縮している。','根元まで押し込む。内臓を押し広げられる異物感に、全身が震えている。初めての、肛門での結合。'],
+f:['後孔に先端を押し当てた。窄まりが本能的にきつく締まる。','力を込めて腰を進めると、抵抗を押し破って亀頭が呑み込まれた。膣とは全く違う、きつい圧迫感。','根元まで押し込む。経験したことのない感覚に、全身が震えている。']},
+voice:{m:['声にならない叫び。身体の奥を引き裂かれるような感覚に、視界が白く弾けた。','「っ……ぁ……！！」背中が弓なりに反った。痛みで呼吸すらまともにできない。'],
+f:['「っ……あ、あぁっ……！！」予想を超える圧迫感に、目から涙が零れ落ちた。','声にならない悲鳴。身体の奥を未知の異物が蹂躙している。']}},
+{flag:'vaginal',cmds:['seijou','kouhai'],onlyF:true,
+narr:{f:['秘裂に先端を押し当てた。花弁が異物に触れ、反射的に身体が強張る。','ゆっくりと腰を沈めていく。処女膜が裂ける小さな抵抗の後、膣壁が肉棒を呑み込んだ。内側から押し広げられていく感覚。初めての、男の熱。','最奥に達した。子宮口に先端が触れ、身体の芯が痺れるような衝撃が走った。']},
+voice:{f:['「っ……！！」鋭い痛みに目を見開く。太腿の内側を、一筋の赤い線が伝った。','涙が溢れた。痛みと、身体を犯された現実と。もう戻れないという絶望。']}},
+{flag:'oral',cmds:['fera'],
+narr:{any:['口の前に屹立を突きつけた。唇を割って、先端を押し込んでいく。','舌の上を肉の塊が蹂躙していく。口腔が異物の形に押し広げられる。初めて他者のものを口に含んだ。']},
+voice:{any:['嗚咽。吐き気を堪えながら、涙目でこちらを見上げている。','顔を背けようとしたが、頭を掴まれて逃げられない。屈辱に顔が歪む。']}},
+{flag:'irama',cmds:['irama'],
+narr:{any:['頭を掴み、喉の奥まで一気に突き入れた。咽頭に先端がぶつかる。','嗚咽と咳き込む音。涎が顎から滴り落ち、涙で視界が歪んでいる。喉奥を蹂躙される感覚に、意識が遠のきかける。']},
+voice:{any:['「ん゛っ……！！ん゛ん゛っ……！」声にならない悲鳴。窒息寸前の苦しみ。','目が据わっている。息ができない恐怖が、全身を支配した。']}},
+{flag:'prostate',cmds:['zenritsusen'],
+narr:{any:['後孔に指をゆっくりと沈め、腸壁を探るように押していく。','指の腹が、前立腺の膨らみを捉えた。ぐりと押し込む。','下腹部から脳天へ、体験したことのない電撃が駆け抜けた。痛みではない。快感でもない。全く未知の感覚。']},
+voice:{m:['「な……っ、何……これ……！」目を見開き、腰が跳ね上がった。自分の身体にこんな場所があったのかという驚愕。','声が裏返った。男の身体にある、知られざる快楽の中枢を初めて刺激された。']}},
+{flag:'sm',cmds:['spank','muchi'],
+narr:{any:['打擲の衝撃が、肌を焼くように駆け抜けた。','乾いた音が部屋に響き渡る。遅れて、じわりと熱を持った痛みが広がった。初めて受ける体罰。']},
+voice:{any:['声を殺して耐えている。目に涙が滲むが、必死に堪えている。','身体が大きく跳ねた。打たれた場所が真っ赤に腫れ上がっている。']}},
+{flag:'toy',cmds:['rotor','vibe','anal_vibe','nipple_cap'],
+narr:{any:['スイッチが入り、低い振動音が響き始めた。','肌に押し当てた瞬間、予想を超える刺激に全身が跳ねた。機械的で容赦のない振動。自分の意思では止められない快感。']},
+voice:{any:['「……っ！」道具の振動に、身体が勝手に反応している。こんなもので感じてしまう自分への嫌悪。','目を固く閉じ、唇を噛んでいる。道具の無慈悲な刺激に抗おうとしているが、身体は正直だ。']}},
+{flag:'restrain',cmds:['kousoku'],
+narr:{any:['縄が肌に食い込んでいく。手首、足首、胴体。自由が一つずつ奪われていく。','最後の結び目が締められた。もう指一本すら自由にならない。完全な拘束。']},
+voice:{any:['息が荒くなっている。自由を奪われた恐怖と無力感が全身を支配している。','もがいてみるが、縄は微動だにしない。抵抗が無意味だと悟った瞬間、目から光が消えかけた。']}},
+{flag:'blindfold',cmds:['eye_mask'],
+narr:{any:['アイマスクが視界を完全に奪った。突然の暗闇に、他の感覚が否応なく研ぎ澄まされていく。','何も見えない。ただ自分の鼓動と呼吸だけが、暗闇の中で異様に大きく響いている。']},
+voice:{any:['見えない恐怖に全身が強張っている。次に何をされるか分からない。','暗闘の中で身体が過敏になっていく。空気の流れすら肌で感じ取ってしまう。']}},
+{flag:'gag',cmds:['mouth_gag'],
+narr:{any:['顎を掴み、強引に口を開かせた。そこにボールギャグを押し込む。','後頭部でベルトを締め上げた。もう叫ぶことも、懇願することもできない。残されたのはくぐもった呻きだけ。']},
+voice:{any:['「んーっ……！ん゛ん゛っ……！」必死に抗議しようとしているが、意味のある言葉にならない。','涎が唇の端から滴り落ちている。声を奪われた屈辱に、涙が滲んだ。']}},
+{flag:'ear',cmds:['mimi'],
+narr:{any:['耳朶に唇が触れた。ぞわりと、背筋を這い上がるような感覚。','耳の中に、濡れた舌が差し込まれた。頭蓋の内側を直接撫でられているような、脳に響く刺激。']},
+voice:{any:['全身に鳥肌が立った。耳がこんなに敏感だなんて、知らなかった。','肩が跳ね、首を竦めた。耳元で響く水音が、思考を搔き乱す。']}},
+{flag:'kabuto',cmds:['kabuto'],
+narr:{any:['互いのものが目の前で並べられた。先端同士を合わせ、ゆっくりと擦り合わせる。','亀頭と亀頭が触れ合った。自分のものと他者のもの。体温が直接伝わる、生々しい接触。']},
+voice:{m:['顔が真っ赤に染まっている。自分のものを他人のものと擦り合わされる羞恥と、否定できない快感。','「っ……！」先端が擦れるたびに、腰が震える。直接的な刺激に、理性が揺さぶられる。']}},
+{flag:'chikubi_first',cmds:['chikubi'],
+narr:{any:['乳首に指先が触れた。摘み上げ、ゆっくりとねじるように刺激する。','先端の突起が指先に弄ばれている。胸にこんな快感があるなんて。']},
+voice:{any:['「っ……そこ……っ」思わず声が漏れた。胸の先端が、想像以上に敏感だった。']}},
+{flag:'taimenzai',cmds:['taimenzai','taimenzai_a'],
+narr:{any:['向かい合って組み付いた。額が触れ合い、吐息が頬にかかる。互いの表情が全て見える、最も親密で最も残酷な体勢。','この距離では何も隠せない。苦痛も、快感も、羞恥も。全てが相手に筒抜けになる。']},
+voice:{any:['至近距離で見つめられている。目を逸らそうとしても、顔を掴まれて戻される。','この距離から見る表情は、普段とは全く違う。隠していた感情が、全て露わになっている。']}},
+{flag:'foot',cmds:['ashinage'],
+narr:{any:['足元に跪かせた。足の指を顔の前に差し出し、舐めるよう命じた。','人の足を舐める。それは服従の究極の形。人としての尊厳の、最後の一線。']},
+voice:{any:['震える舌が、恐る恐る足裏に触れた。屈辱で涙が溢れている。','顔を真っ赤にしながら、足の指に舌を這わせている。尊厳が音を立てて崩れていく。']}},
+{flag:'choke',cmds:['kubijime'],
+narr:{any:['首に手をかけた。ゆっくりと、しかし確実に圧を加えていく。','気道が狭まり、視界の端が暗くなっていく。生命線を他者に握られている恐怖。']},
+voice:{any:['目が見開かれた。本能的な死の恐怖が全身を支配している。','口をぱくぱくさせているが、声が出ない。意識が遠のき始めている。']}},
+{flag:'piercing',cmds:['piercing'],
+narr:{any:['消毒液の匂いが鼻をつく。無菌処理された針が、肌の上で冷たく光った。','一呼吸置いて、針が肉を貫通した。鮮血が一滴、白い肌を伝って落ちる。','金属のピアスが装着された。これはもう外れない。身体に永遠に刻まれた、所有の証。']},
+voice:{any:['「っ……！！」鋭い痛みに全身が跳ねた。肉を貫かれた感覚が、じわじわと広がっていく。','震えが止まらない。自分の身体に、消えない異物が埋め込まれた。その事実が、重くのしかかる。']}},
+{flag:'enema',cmds:['kanchou'],
+narr:{any:['管が後孔に差し込まれた。冷たい液体がゆっくりと注入されていく。','腸壁が冷たい液体に満たされ、下腹部が重く膨れ上がっていく。逃げ場のない圧迫感。内臓の奥まで侵されている。']},
+voice:{any:['「やめ……っ、おなか……っ！」腹を抱えて蹲った。堪え切れない膨満感と、排泄欲の波。','歯を食いしばって耐えているが、限界が近い。恥辱にまみれた涙が頬を伝う。']}},
+{flag:'brand',cmds:['rakuin'],
+narr:{any:['赤熱した焼き印が、ゆっくりと肌に近づいてくる。鉄の灼ける匂い。','肌に押し当てた。焦げる音。焦げる臭い。肉が灼ける痛みが、全身を白く焼き尽くす。','肌に刻まれた紋様。二度と消えない。生きている限り、この身体が誰のものかを証明し続ける。']},
+voice:{any:['「ぁ……あ゛あ゛あ゛あ゛ッ！！！」絶叫。体験したことのない激痛に、意識が飛びかけた。','白目を剥いて痙攣している。痛みが全神経を焼き切った。しかし、肌にはくっきりと烙印が残った。']}},
+{flag:'seastone',cmds:['kairoseki'],
+narr:{any:['海楼石の手錠をかちりと嵌めた。海楼石特有の紋様が、冷たく光っている。','能力者であれば、全身から一瞬にして力が抜け落ちる。海の力を宿した石が、悪魔の力を完全に封じた。非能力者でも、外れない手錠は十分な拘束具として機能する。']},
+voice:{any:['膝から崩れ落ちた。自慢の力が、まるで嘘のように消え去った。','力なく項垂れている。最大の武器を奪われた衝撃は、肉体的な苦痛以上に心を抉った。']}},
+{flag:'exhibit',cmds:['misemono'],
+narr:{any:['大勢の前に引き出された。好奇の眼差しが、剥き出しの肌に突き刺さる。','逃げることも隠すこともできない。観衆の前で、全てを晒されている。嗤い声、囃し声、卑猥な野次。その全てが、恥辱を何倍にも増幅させる。']},
+voice:{any:['顔を背け、身体を丸めて隠そうとしている。だが隠し切れない。衆目が容赦なく全てを暴く。','涙が止まらない。人前でこんな姿を晒す屈辱に、精神が軋んでいる。']}}
+];
+// ============================================================
+// STATE
+// ============================================================
+let G=null;
+function newTarget(id){const t=CHARS[id];return{hp:t.base.hp,mhp:t.base.hp,sp:t.base.sp,msp:t.base.sp,mental:t.base.mental,mmental:t.base.mental,
+juel:{},abl:{...t.initAbl},marks:{pain:0,pleasure:0,submit:0,rebel:0},talents:[...t.talents],expA:0,clothing:0,equips:[],firstFlags:{},piercings:[],branded:false}}
+function newGame(pcId){
+const unlocked=Object.keys(CHARS).filter(k=>CHARS[k].cost===0);
+const targets={};unlocked.forEach(k=>targets[k]=newTarget(k));
+return{v:'0.5',pc:pcId,day:1,xp:0,inventory:[],unlocks:[],unlockedTargets:unlocked,currentTarget:unlocked[0],
+targets,sessionPalam:{},cmdCount:0,maxCmd:8,prevCmd:null,prevCmdCount:0,sessionFlags:{},hakiUsed:{},_cat:null}}
+// ============================================================
+// BODY CHECK
+// ============================================================
+function bcheck(cmd){
+const pc=CHARS[G.pc],ts=G.targets[G.currentTarget],tgt=CHARS[G.currentTarget];
+const pB=pc.body_type,tB=tgt.body_type,tT=ts.talents,pT=pc.talents;
+const pcIns=['male','futanari','androgyne'].includes(pB)&&!pT.includes('受け');
+const tV=['female','futanari','androgyne'].includes(tB)&&!tT.includes('攻め');
+const tM=['male','androgyne'].includes(tB);
+switch(cmd.bc){
+case'any':return{ok:1};case'targetV':return tV&&pcIns?{ok:1}:{ok:0,r:tV?'PC挿入不可':'V器官なし'};
+case'targetA_pcI':return pcIns&&!tT.includes('攻め')?{ok:1}:{ok:0,r:'挿入不可'};
+case'targetMaleA':return tM?{ok:1}:{ok:0,r:'前立腺なし'};
+case'pcMale':return['male','futanari','androgyne'].includes(pB)?{ok:1}:{ok:0,r:'PC器官なし'};
+case'pcV':return['female','futanari','androgyne'].includes(pB)?{ok:1}:{ok:0,r:'PC V器官なし'};
+case'pcA':return{ok:1};case'bothMale':return['male','futanari','androgyne'].includes(pB)&&['male','futanari','androgyne'].includes(tB)?{ok:1}:{ok:0,r:'双方男性器必要'};case'targetNoumi':return tT.includes('能力者')?{ok:1}:{ok:0,r:'能力者のみ'};default:return{ok:1}}}
+// ============================================================
+// COM_ORDER probability
+// ============================================================
+function comOrd(cmd){
+if(cmd.ord===0||cmd.isH)return{prob:100};
+const ts=G.targets[G.currentTarget],a=ts.abl,p=G.sessionPalam;
+let v=a.obey*4+a.desire+(a.service||0)*2+(ts.marks.pleasure||0)*2+(ts.marks.submit||0)*5;
+v+=pLv(p.desire||0)+pLv(p.kyoujun||0)*2;
+if(ts.talents.includes('気丈'))v-=3;if(ts.talents.includes('反抗的'))v-=4;if(ts.talents.includes('プライド高い'))v-=3;
+if(ts.talents.includes('素直'))v+=3;if(ts.talents.includes('恋慕'))v+=6;if(ts.talents.includes('服従'))v+=10;if(ts.talents.includes('淫乱'))v+=5;
+if(G.sessionFlags.restrained||G.sessionFlags.restrained_haki)v+=8;
+if(G.sessionFlags.restrained_kairoseki)v+=25;
+if(G.sessionFlags.insight&&G.sessionFlags.insightT>0)v+=5;
+return{prob:Math.max(5,Math.min(95,50+(v-cmd.ord)*8))}}
+function ablCheck(cmd){if(!cmd.ra)return{ok:1};const a=G.targets[G.currentTarget].abl;for(const[k,v]of Object.entries(cmd.ra))if((a[k]||0)<v)return{ok:0,r:`${k}不足`};return{ok:1}}
+function hakiCheck(cmd){
+const ts=G.targets[G.currentTarget];let r=cmd.hb;
+if(ts.hp>ts.mhp*.7)r-=15;else if(ts.hp<ts.mhp*.3)r+=20;
+if(ts.sp>ts.msp*.7)r-=10;else if(ts.sp<ts.msp*.3)r+=15;
+if(pLv(G.sessionPalam.fear||0)>=3)r+=15;if(pLv(G.sessionPalam.sub||0)>=3)r+=10;
+if(ts.marks.submit>0)r+=10;if(ts.marks.rebel>0)r-=20;if(ts.talents.includes('覇気持ち'))r-=30;
+r-=(G.hakiUsed[cmd.id]||0)*20;r+=Math.floor(Math.random()*21)-10;
+return Math.max(5,Math.min(85,r))}
+// ============================================================
+// MENTAL DELTA
+// ============================================================
+function mentalDelta(cmd,ts){
+let base=cmd.mc||0;
+// State reversal
+if(base<0){
+const t=ts.talents;const cat=cmd.cat;
+// Love reversal: intimate commands heal when in love
+if(t.includes('恋慕')&&['aibu','comm','sex'].includes(cat)&&['kiss','seijou','kouhai','mattari','skinship','kijou_suru'].includes(cmd.id))
+  base=Math.abs(base);
+if(t.includes('親愛')&&['comm'].includes(cat))base=Math.abs(base)*2;
+// Lust reversal
+if(t.includes('淫乱')&&['aibu','sex','serve'].includes(cat))base=Math.floor(base*.3);
+if(t.includes('娼婦')&&['aibu','sex','serve'].includes(cat))base=Math.abs(base);
+// Submit reversal
+if(t.includes('服従')&&['sm','hard'].includes(cat))base=Math.floor(base*.3);
+if(t.includes('隷属')&&['sm','hard'].includes(cat))base=Math.abs(base);
+}
+// ABL mod
+if(base<0){
+const a=ts.abl;
+if(a.maso>=1&&['sm','hard'].includes(cmd.cat))base=Math.floor(base*(1-a.maso*.08));
+if(a.obey>=3)base=Math.floor(base*.8);
+if(a.desire>=3&&['aibu','sex','serve'].includes(cmd.cat))base=Math.floor(base*.8);
+if((a.service||0)>=2&&cmd.cat==='serve')base=Math.floor(base*.7);
+}
+return base}
+// ============================================================
+// EXECUTE
+// ============================================================
+function execCmd(cmdId){
+const cmd=CMDS.find(c=>c.id===cmdId);if(!cmd)return;
+const ts=G.targets[G.currentTarget],tgt=CHARS[G.currentTarget],pc=CHARS[G.pc];
+if(ts.hp<=0){txt('対象は気絶している。','system');return}
+const bc=bcheck(cmd);if(!bc.ok){txt(`＞ ${bc.r}`,'system');return}
+const ac=ablCheck(cmd);if(!ac.ok){txt(`＞ ${ac.r}`,'system');return}
+txt('','sep');txt(`▶ ${cmd.name}`,'system');
+if(cmd.isH){execHaki(cmd);G.prevCmd=cmdId;G.prevCmdCount=1;G.cmdCount++;if(G.sessionFlags.insightT>0)G.sessionFlags.insightT--;updateUI();chkEnd();return}
+// COM_ORDER
+const co=comOrd(cmd);const denied=co.prob<100&&Math.random()*100>=co.prob;
+if(denied){
+txt(`${tgt.name}は拒否した！`,'deny');
+const dl=getDenyLine(ts);txt(dl,'voice');
+applySrc({hanpa:200,osore:150});applyMental(-2,ts);
+}else{
+// Consume item if consumable
+if(cmd.req_item&&G.inventory.includes(cmd.req_item)){
+const idx=G.inventory.indexOf(cmd.req_item);G.inventory.splice(idx,1);txt(`（${SHOP.find(s=>s.id===cmd.req_item)?.name||'アイテム'}を使用した）`,'system')}
+// HP cost
+ts.hp=Math.max(0,ts.hp-cmd.hp);
+// Healing
+if(cmd.heals){ts.hp=Math.min(ts.mhp,ts.hp+cmd.heals);txt(`体力が回復した（＋${Math.round(Math.min(cmd.heals,ts.mhp)/ts.mhp*100)}%）`,'effect')}
+// Undress
+if(cmd.undress&&ts.clothing<2){ts.clothing++;txt(`→ ${CLOTH_NAMES[ts.clothing]}にした`,'effect')}
+// Source with PC mult + clothing mod
+let src={};const m=1+(pc.mult[cmd.cat]||0);
+for(const[k,v]of Object.entries(cmd.src)){src[k]=Math.floor(v*m)}
+// Lotion boost: if lotioned flag active, boost aibu/insert sources
+if(G.sessionFlags.lotioned&&['aibu','sex','tool'].includes(cmd.cat)){
+if(src.kaiC)src.kaiC=Math.floor(src.kaiC*1.5);if(src.kaiV)src.kaiV=Math.floor(src.kaiV*1.5);
+if(src.kaiA)src.kaiA=Math.floor(src.kaiA*1.5);if(src.kaiB)src.kaiB=Math.floor(src.kaiB*1.5);
+G.sessionFlags.lotioned=false;txt('ローションの効果が適用された。','effect')}
+// Clothing mod
+const cm=CLOTH_MOD[ts.clothing]||{};
+if(cm.aibu&&src.kaiC)src.kaiC=Math.floor(src.kaiC*cm.aibu);
+if(cm.aibu&&src.kaiB)src.kaiB=Math.floor(src.kaiB*cm.aibu);
+if(cm.aibu&&src.kaiV)src.kaiV=Math.floor(src.kaiV*cm.aibu);
+if(cm.roshut&&src.roshut)src.roshut=Math.floor(src.roshut*cm.roshut);
+// Equip bonus: apply all currently equipped accessory bonuses to source
+for(const eqId of (ts.equips||[])){
+const eq=EQUIP_DATA[eqId];if(!eq)continue;
+for(const[sk,mult]of Object.entries(eq.bonus)){if(src[sk])src[sk]=Math.floor(src[sk]*mult)}}
+// Piercing bonus: permanent body mods
+for(const pId of (ts.piercings||[])){
+const pd=PIERCING_DATA[pId];if(!pd)continue;
+for(const[sk,mult]of Object.entries(pd.bonus)){if(src[sk])src[sk]=Math.floor(src[sk]*mult)}}
+// Talent mods
+if(ts.talents.includes('酒好き')&&cmdId==='sake'){src.kyouj=(src.kyouj||0)*2;src.yokuj=(src.yokuj||0)*2}
+if(ts.talents.includes('気丈')&&src.osore)src.osore=Math.floor(src.osore*.75);
+if(ts.talents.includes('反抗的')&&src.hanpa)src.hanpa=Math.floor(src.hanpa*1.5);
+if(ts.talents.includes('スキンシップ苦手')&&['skinship','mattari'].includes(cmdId)){src.jouai=Math.floor((src.jouai||0)*.5);src.utsuk=(src.utsuk||0)+200}
+// Derivation check
+if(G.prevCmd===cmdId&&DERIVES[cmdId]){
+G.prevCmdCount++;if(G.prevCmdCount>=2){
+const dv=DERIVES[cmdId];txt(`★ 派生: ${dv.n}！`,'derive');
+for(const[k,m2]of Object.entries(dv.srcMult||{}))if(src[k])src[k]=Math.floor(src[k]*m2);
+for(const[k,v]of Object.entries(dv.extra||{}))src[k]=(src[k]||0)+v;
+}}else{G.prevCmdCount=1}
+// Combo
+if(G.prevCmd&&G.prevCmd!==cmdId){
+const cb=COMBOS.find(c=>c.a===G.prevCmd&&c.b===cmdId);
+if(cb){txt(`★ コンボ: ${cb.n}！`,'combo');for(const[k,m2]of Object.entries(cb.bo))if(src[k])src[k]=Math.floor(src[k]*m2)}}
+applySrc(src);
+// Mental
+const md=mentalDelta(cmd,ts);applyMental(md,ts);
+// Track session stats for night recovery
+if(cmd.cat==='comm')G.sessionFlags._usedComm=(G.sessionFlags._usedComm||0)+1;
+if(['sm','hard'].includes(cmd.cat)||cmdId==='bouryoku'||cmdId==='batou')G.sessionFlags._usedViolence=true;
+// Flags
+if(cmd.sf){G.sessionFlags[cmd.sf]=true;if(cmd.sf==='insight'){G.sessionFlags.insightT=5;txt('心の動きが見える……','effect')}
+if(cmd.sf.startsWith('restrain'))txt('対象を拘束した。','effect')}
+// Equip accessory
+if(cmd.equip&&!(ts.equips||[]).includes(cmd.equip)){
+if(!ts.equips)ts.equips=[];ts.equips.push(cmd.equip);
+const eqName=EQUIP_DATA[cmd.equip]?.name||cmd.equip;txt(`→ ${eqName}を装着した`,'effect')}
+// Scene (narration + voice) — BEFORE virgin/piercing effects
+showScene(cmd,ts);
+// Virgin checks (target only)
+// Target receives A系 → バックバージン喪失
+if(cmd.cat==='sex'){ts.expA=(ts.expA||0)+1;if(ts.expA===1&&ts.talents.includes('バックバージン')){ts.talents=ts.talents.filter(t=>t!=='バックバージン');txt('※ バックバージンを喪失した','effect')}}
+// Target receives V系 → 処女喪失
+if(cmd.cat==='sex'&&ts.talents.includes('処女')){ts.talents=ts.talents.filter(t=>t!=='処女');txt('※ 処女を喪失した','effect')}
+// Target inserts into PC (uke commands) → 対象の童貞喪失
+if((cmdId==='kijou_suru'||cmdId==='kijou_a_suru')&&ts.talents.includes('童貞')){ts.talents=ts.talents.filter(t=>t!=='童貞');txt('※ 童貞を喪失した','effect')}
+// Piercing: permanent body modification
+if(cmd.isPiercing){if(!ts.piercings)ts.piercings=[];
+const opts=Object.keys(PIERCING_DATA).filter(k=>!ts.piercings.includes(k));
+if(opts.length){const pk=opts[Math.floor(Math.random()*opts.length)];ts.piercings.push(pk);
+txt(`→ ${PIERCING_DATA[pk].name}を装着した。もう外れない。`,'effect')}}
+// Brand: permanent mark
+if(cmd.isBrand&&!ts.branded){ts.branded=true;txt('→ 烙印が刻まれた。永遠に消えない所有の証。','effect')}
+// XP
+const xpGain=(['sex','sm','hard'].includes(cmd.cat))?2:1;G.xp+=xpGain;
+// Climax check
+checkClimax(cmd,ts);
+}
+G.prevCmd=cmdId;G.cmdCount++;
+if(G.sessionFlags.insightT>0)G.sessionFlags.insightT--;
+// Forced session end (rest/dismiss commands)
+if(cmd.endsSession){txt('── 調教を切り上げた ──','system');G.phase='night';endSession();showNight();return}
+updateUI();chkEnd()}
+
+function execHaki(cmd){
+const ts=G.targets[G.currentTarget],tgt=CHARS[G.currentTarget],pc=CHARS[G.pc];
+const rate=hakiCheck(cmd);const ok=Math.random()*100<rate;
+G.hakiUsed[cmd.id]=(G.hakiUsed[cmd.id]||0)+1;
+if(ok){txt(`${cmd.name}が炸裂した！`,'success');
+let src={};const m=1+(pc.mult.haki||0);for(const[k,v]of Object.entries(cmd.src))src[k]=Math.floor(v*m);
+applySrc(src);applyMental(cmd.mc,ts);
+// Track violence (覇王色/武装色 are violent, 見聞色 is not)
+if(cmd.id==='haou'||cmd.id==='busou')G.sessionFlags._usedViolence=true;
+if(cmd.sf){G.sessionFlags[cmd.sf]=true;if(cmd.sf==='restrained_haki')txt('覇気で身動きが取れない……','effect');if(cmd.sf==='insight'){G.sessionFlags.insightT=5;txt('対象の心が透けて見える。','effect')}}
+G.xp+=3;showScene(cmd,ts);checkClimax(cmd,ts);
+}else{txt(`${cmd.name}は弾かれた！`,'fail');
+applySrc({hanpa:Math.floor((cmd.src.hanpa||500)*3),osore:Math.floor((cmd.src.osore||300)*.5)});
+G.sessionPalam.fear=Math.floor((G.sessionPalam.fear||0)*.5);txt('威厳が失墜。恐怖が半減。','fail');G.sessionFlags.hakiFailed=true;
+if(ts.talents.includes('覇気持ち')){applySrc({hanpa:1000});txt('覇気で跳ね返された！','fail')}}}
+
+function applySrc(src){const p=G.sessionPalam;for(const[sk,sv]of Object.entries(src)){if(!sv)continue;const mp=S2P[sk];if(!mp)continue;for(const[pk,w]of Object.entries(mp)){const d=Math.floor(sv*w);if(d)p[pk]=(p[pk]||0)+d}}}
+function applyMental(delta,ts){ts.mental=Math.max(0,Math.min(ts.mmental,ts.mental+delta));
+// Mental hints
+if(delta<0){const pct=ts.mental/ts.mmental*100;for(const h of MENTAL_HINTS){if(pct<=h.th&&Math.random()<.3){txt(h.msgs[Math.floor(Math.random()*h.msgs.length)],'mental');break}}}}
+
+// ============================================================
+// CLIMAX ENGINE
+// ============================================================
+function getPleasureTotal(){const p=G.sessionPalam;return(p.kaiC||0)+(p.kaiV||0)+(p.kaiA||0)+(p.kaiB||0)}
+function getClimaxThreshold(ts){
+let th=CLIMAX_BASE_TH;const a=ts.abl;
+th-=(a.sensC||0)*60+(a.sensV||0)*60+(a.sensA||0)*60+(a.sensB||0)*40;
+if(ts.talents.includes('淫乱'))th-=300;
+if(ts.talents.includes('娼婦'))th-=500;
+th-=(G.sessionFlags._clxCount||0)*150;
+return Math.max(400,th)}
+function canDenyClimax(ts){
+if(ts.talents.includes('淫乱')||ts.talents.includes('娼婦'))return false;
+if((G.sessionFlags._clxCount||0)>=2)return false;
+if(G.sessionFlags._clxDeniedThisCycle)return false;
+let ch=0;
+if(ts.talents.includes('自制心'))ch+=40;
+if(ts.talents.includes('気丈'))ch+=25;
+if(ts.talents.includes('負けず嫌い'))ch+=15;
+ch-=(G.sessionFlags._clxCount||0)*15;
+return Math.random()*100<Math.max(0,ch)}
+function checkClimax(cmd,ts){
+const physCats=['aibu','sex','serve','tool','uke','special','hard'];
+if(!physCats.includes(cmd.cat))return;
+if(getFallen(ts)==='崩壊')return;
+const count=G.sessionFlags._clxCount||0;
+// Forced climax from previous denial
+if(G.sessionFlags._clxDenied){G.sessionFlags._clxDenied=false;G.sessionFlags._clxDeniedThisCycle=false;processClimax(ts,true);return}
+const pleasure=getPleasureTotal()-(G.sessionFlags._clxPlBase||0);
+const th=getClimaxThreshold(ts);
+const ratio=pleasure/th;
+// Warnings (only fire once per level per cycle)
+const wl=G.sessionFlags._clxWarnLv||0;
+if(ratio>=.9&&wl<2){G.sessionFlags._clxWarnLv=2;txt(rnd(CLIMAX_WARN[1].msgs),'effect')}
+else if(ratio>=.7&&wl<1){G.sessionFlags._clxWarnLv=1;txt(rnd(CLIMAX_WARN[0].msgs),'effect')}
+// Climax trigger
+if(pleasure>=th){
+if(canDenyClimax(ts)){G.sessionFlags._clxDenied=true;G.sessionFlags._clxDeniedThisCycle=true;
+const vt=VTYPE[G.currentTarget]||'standard';
+txt(rnd(CLIMAX_DENY[vt]),'voice');txt('絶頂を堪えている……！','effect');return}
+processClimax(ts,false)}}
+function processClimax(ts,fromDenial){
+const count=G.sessionFlags._clxCount||0;
+const tgt=CHARS[G.currentTarget];
+txt('','sep');
+// Climax voice: intensity by count
+let lv='low';if(count>=3)lv='high';else if(count>=1)lv='mid';
+const st=getState(ts);const cv=CLIMAX_VOICE[G.currentTarget];
+const pk=G.pc+'_'+G.currentTarget;const pv=PAIR_VOICE[pk];
+let lines=null;
+// Pair climax → Char climax → Generic
+if(pv&&pv.climax){if(pv.climax[st])lines=pv.climax[st][lv];if(!lines||!lines.length)lines=pv.climax.base?.[lv]}
+if(!lines||!lines.length){if(cv){if(cv[st])lines=cv[st][lv];if(!lines||!lines.length)lines=cv.base?.[lv]}}
+if(!lines||!lines.length)lines=CLIMAX_GENERIC.male[lv];
+if(lines&&lines.length)txt(rnd(lines),'voice');
+if(fromDenial)txt('堪えきれず、一際激しく達した……！','effect');
+// Bonuses
+const mult=1+count*.5+(fromDenial?.5:0);
+const xpB=Math.floor(3*mult);G.xp+=xpB;
+txt(`★ 絶頂！（${count+1}回目）XP+${xpB}`,'success');
+// Bonus JUEL: boost dominant pleasure channel
+const p=G.sessionPalam;const bonusJ=Math.floor(150*mult);
+const mk=['kaiC','kaiV','kaiA','kaiB'].reduce((a,b)=>(p[a]||0)>=(p[b]||0)?a:b);
+p[mk]=(p[mk]||0)+bonusJ;
+// HP cost (escalating)
+const hpCost=Math.max(3,Math.floor(ts.mhp*.05*(1+count*.3)));
+ts.hp=Math.max(0,ts.hp-hpCost);
+// Update state
+G.sessionFlags._clxCount=count+1;
+G.sessionFlags._clxPlBase=Math.floor(getPleasureTotal()*.7);
+G.sessionFlags._clxWarnLv=0;G.sessionFlags._clxDeniedThisCycle=false;
+// Sens ABL gain chance from climax
+const sensMap={kaiC:'sensC',kaiV:'sensV',kaiA:'sensA',kaiB:'sensB'};
+const sk=sensMap[mk];if(sk&&(ts.abl[sk]||0)<10){
+const jk=mk;if((ts.juel[jk]||0)>=ABL_TH[(ts.abl[sk]||0)+1]){ts.abl[sk]=(ts.abl[sk]||0)+1;
+const sn={sensC:'C感覚',sensV:'V感覚',sensA:'A感覚',sensB:'B感覚'};
+txt(`★ ${sn[sk]} Lv${ts.abl[sk]}に上昇！`,'success')}}
+updateUI()}
+
+// ============================================================
+// VOICE ENGINE
+// ============================================================
+function getState(ts){
+if(ts.talents.includes('隷属'))return'slave';if(ts.talents.includes('娼婦'))return'whore';
+if(ts.talents.includes('親愛'))return'dear';if(ts.talents.includes('恋慕'))return'love';
+if(ts.talents.includes('淫乱'))return'lust';if(ts.talents.includes('服従'))return'obey';
+return'base'}
+function getPantLv(cmd,ts){
+const p=G.sessionPalam;let pl=0,pn=0;
+const tP=(p.desire||0)+(p.kaiC||0)+(p.kaiV||0)+(p.kaiA||0)+(p.kaiB||0);
+if(tP>PALAM_LV[4])pl=4;else if(tP>PALAM_LV[3])pl=3;else if(tP>PALAM_LV[2])pl=2;else if(tP>PALAM_LV[1])pl=1;
+if(['aibu','tool'].includes(cmd.cat)){if(ts.abl.sensC>=5)pl++;if(ts.abl.sensB>=5)pl++}
+if(cmd.cat==='sex'&&ts.abl.sensV>=5)pl++;
+if(cmd.cat==='sex'){if(ts.abl.sensA>=5)pl++;if(ts.abl.sensA<3&&!G.sessionFlags.lotioned)pn++}
+if(['sm','hard'].includes(cmd.cat)){pn=(p.pain||0)>PALAM_LV[3]?2:1;if(ts.abl.maso>=3){pl++;pn--}if(ts.abl.maso>=7)pl++}
+let cM=0;
+if(ts.talents.includes('反抗的'))cM--;
+if(ts.talents.includes('プライド高い'))cM--;if(ts.talents.includes('自制心'))cM-=2;
+pl=Math.max(0,Math.min(4,pl+Math.floor(cM/2)));
+return{pl,pn,gagged:(ts.equips||[]).includes('gag')}}
+function getPantSound(pant){
+const vt=VTYPE[G.currentTarget]||'standard';
+if(pant.gagged){const g=PANT.gagged;return g[Math.floor(Math.random()*g.length)]}
+let pool;
+if(pant.pn>=2)pool=PANT.pain_high;else if(pant.pn>=1)pool=PANT.pain_low;
+else if(pant.pl>=4)pool=PANT.extreme;else if(pant.pl>=3)pool=PANT.high;
+else if(pant.pl>=1)pool=PANT.mid;else pool=PANT.weak;
+const ls=pool[vt]||pool.standard;return ls[Math.floor(Math.random()*ls.length)]}
+function rnd(a){return a[Math.floor(Math.random()*a.length)]}
+function showScene(cmd,ts){
+// Broken: always show broken voice lines only
+if(ts.talents.includes('崩壊')){txt(rnd(BROKEN_VOICE),'mental');return}
+const cid=G.currentTarget,tgt=CHARS[cid],cv=CHAR_VOICE[cid],cat=cmd.cat,st=getState(ts);
+const bt=tgt.body_type;const bk=bt==='female'?'f':'m';
+const pk=G.pc+'_'+cid;const pv=PAIR_VOICE[pk];
+if(!ts.firstFlags)ts.firstFlags={};
+// ── First-time Event Check ──
+const fe=FIRST_EVENTS.find(e=>e.cmds.includes(cmd.id)&&!ts.firstFlags[e.flag]);
+if(fe){
+if(fe.onlyF&&bt!=='female'){/* skip */}
+else{
+ts.firstFlags[fe.flag]=true;
+const nPool=fe.narr[bt]||fe.narr[bk]||fe.narr.any||[];
+for(const line of nPool)txt(line,'narration');
+const vPool=fe.voice[bt]||fe.voice[bk]||fe.voice.any||[];
+if(vPool.length)txt(rnd(vPool),'voice');
+return}}
+// ── Normal Flow ──
+const pant=getPantLv(cmd,ts);
+let lv='low';if(pant.pl>=3)lv='high';else if(pant.pl>=1)lv='mid';
+if(pant.pn>pant.pl&&['sm','hard'].includes(cat))lv=pant.pn>=2?'low':'mid';
+// ── Layer 1: Narration (Pair → ACTION_NARR → cmd.d) ──
+let narrated=false;
+if(pv&&pv[cat]){const pl=pv[cat][st]?.[lv]||pv[cat].base?.[lv];
+if(pl&&pl.length){txt(rnd(pl),'narration');narrated=true}}
+if(!narrated){const an=ACTION_NARR[cmd.id];
+if(an){const pool=an[bt]?.[lv]||an[bk]?.[lv]||an.any?.[lv]||null;
+if(pool&&pool.length)txt(rnd(pool),'narration');
+else txt(cmd.d,'narration');
+}else{txt(cmd.d,'narration')}}
+// ── Layer 2: Voice (PAIR_VOICE → CHAR_VOICE → GEN_VOICE → PANT) ──
+let lines=null;
+if(pv&&pv[cat]){
+if(pv[cat][st])lines=pv[cat][st][lv];
+if(!lines||!lines.length)lines=pv[cat]?.base?.[lv]}
+if((!lines||!lines.length)&&cv&&cv[cat]){
+if(cv[cat][st])lines=cv[cat][st][lv];
+if(!lines||!lines.length)lines=cv[cat]?.base?.[lv]}
+if(!lines||!lines.length){const gv=GEN_VOICE[cat]||GEN_VOICE.comm;lines=gv[lv]||gv.low}
+if(lines&&lines.length){txt(rnd(lines),'voice');return}
+const ps=getPantSound(pant);if(ps)txt(ps,'voice')}
+function getDenyLine(ts){
+// Broken: even denial is empty
+if(ts.talents.includes('崩壊'))return rnd(BROKEN_VOICE);
+const cid=G.currentTarget,cv=CHAR_VOICE[cid],st=getState(ts);
+if(cv&&cv.deny){
+if(cv.deny[st]&&cv.deny[st].length)return rnd(cv.deny[st]);
+if(cv.deny.base&&cv.deny.base.length)return rnd(cv.deny.base)}
+const pool=DENY_LINES[st]||DENY_LINES.base;return rnd(pool)}
+
+// ============================================================
+// SESSION END
+// ============================================================
+function endSession(){
+const ts=G.targets[G.currentTarget];const p=G.sessionPalam;
+txt('','sep');txt('── セッション終了 ──','system');
+// PALAM->JUEL
+for(const k of Object.keys(p)){const v=p[k];if(v<=0)continue;const d=Math.floor(v/10);if(d>0)ts.juel[k]=(ts.juel[k]||0)+d}
+chkAbl(ts);chkMarks(ts);chkFall(ts);
+// Mental natural recovery (MUST happen BEFORE sessionFlags reset)
+let mr=3;
+if((G.sessionFlags._usedComm||0)>=2)mr=5; // 会話2回以上で+5（基本3の代わり）
+if(!G.sessionFlags._usedViolence)mr+=2;     // 暴力不使用で+2
+if(ts.talents.includes('恋慕'))mr+=3;        // 恋慕で+3
+ts.mental=Math.min(ts.mmental,ts.mental+mr);
+txt(`精神回復: +${mr}`,'system');
+// XP bonus
+G.xp+=5;
+// Reset
+for(const k of Object.keys(p))p[k]=0;
+G.cmdCount=0;G.prevCmd=null;G.prevCmdCount=0;G.sessionFlags={};G.hakiUsed={}}
+// Fallen state: first one wins; 崩壊 overrides all and stops growth
+const FALLEN_STATES=['恋慕','淫乱','服従','崩壊'];
+function getFallen(ts){return FALLEN_STATES.find(f=>ts.talents.includes(f))||null}
+function chkAbl(ts){
+if(getFallen(ts)==='崩壊')return; // 崩壊後は成長停止
+const m={
+  obey:'kyoujun',desire:'desire',service:'learn',
+  sensC:'kaiC',sensV:'kaiV',sensA:'kaiA',sensB:'kaiB',
+  technique:'learn',maso:'pain',expo:'shame'
+};
+const dn={obey:'従順',desire:'欲望',service:'奉仕',sensC:'C感覚',sensV:'V感覚',sensA:'A感覚',sensB:'B感覚',technique:'技巧',maso:'Ｍ',expo:'露出'};
+for(const[ak,jk]of Object.entries(m)){const lv=ts.abl[ak]||0;if(lv>=10)continue;if((ts.juel[jk]||0)>=ABL_TH[lv+1]){ts.abl[ak]=lv+1;const name=dn[ak]||ak;txt(`★ ${name} Lv${lv+1}に上昇！`,'success')}}}
+function chkMarks(ts){
+if(getFallen(ts)==='崩壊')return; // 崩壊後は成長停止
+const th=[500,2000,8000];
+if(ts.marks.pain<3&&(ts.juel.pain||0)>=th[ts.marks.pain]){ts.marks.pain++;txt(`◆ 苦痛刻印 Lv${ts.marks.pain}`,'success');G.xp+=10}
+const pt=(ts.juel.kaiC||0)+(ts.juel.kaiV||0)+(ts.juel.kaiA||0)+(ts.juel.kaiB||0);
+if(ts.marks.pleasure<3&&pt>=th[ts.marks.pleasure]){ts.marks.pleasure++;txt(`◆ 快楽刻印 Lv${ts.marks.pleasure}`,'success');G.xp+=10}
+if(ts.marks.submit<3&&(ts.juel.sub||0)>=th[ts.marks.submit]){ts.marks.submit++;txt(`◆ 屈服刻印 Lv${ts.marks.submit}`,'success');G.xp+=10}
+if(ts.marks.rebel<3&&(ts.juel.rebel||0)>=th[ts.marks.rebel]){ts.marks.rebel++;txt(`◆ 反発刻印 Lv${ts.marks.rebel}`,'effect');G.xp+=10}}
+function chkFall(ts){
+if(getFallen(ts))return; // 既に陥落済み（崩壊含む）→何もしない
+if(ts.abl.obey>=4&&(ts.juel.kyoujun||0)>=1500){ts.talents.push('恋慕');txt('★★★ 恋慕 に陥落した！ ★★★','success');G.xp+=25;return}
+if(ts.abl.desire>=4&&(ts.juel.desire||0)>=1500){ts.talents.push('淫乱');txt('★★★ 淫乱 に陥落した！ ★★★','success');G.xp+=25;return}
+if(ts.abl.obey>=4&&(ts.juel.sub||0)>=1500){ts.talents.push('服従');txt('★★★ 服従 に陥落した！ ★★★','success');G.xp+=25;return}}
+function chkEnd(){
+const ts=G.targets[G.currentTarget];
+// Mental collapse: overrides any existing fallen state
+if(ts.mental<=0&&getFallen(ts)!=='崩壊'){
+const prev=getFallen(ts);if(prev)ts.talents=ts.talents.filter(t=>t!==prev);
+ts.talents.push('崩壊');txt('','sep');txt('……精神が、壊れた。','mental');txt('もう何も感じない。何も考えられない。','mental')}
+if(ts.hp<=0||G.cmdCount>=G.maxCmd){if(ts.hp<=0)txt('対象が気絶した。','system');G.phase='night';endSession();showNight()}}
+// ============================================================
+// NIGHT / PHASE
+// ============================================================
+function showNight(){
+const ts=G.targets[G.currentTarget];
+// HP recovery
+const rec=Math.floor(ts.mhp*.4);ts.hp=Math.min(ts.mhp,ts.hp+rec);ts.sp=Math.min(ts.msp,ts.sp+Math.floor(ts.msp*.5));
+// Reset clothing and accessories for ALL targets
+for(const tid of G.unlockedTargets){
+const t=G.targets[tid];if(!t)continue;
+t.clothing=0;t.equips=[];}
+txt('衣服を戻し、道具を全て外した。','system');
+txt(`夜の回復: 体力＋${Math.round(rec/ts.mhp*100)}%`,'effect');
+document.getElementById('carea').style.display='none';
+document.getElementById('phase-area').innerHTML=`<div class="nightmenu">
+<button class="tbtn" onclick="nextDay()">翌日へ</button>
+<button class="tbtn" onclick="showScreen('room-screen');renderRooms()">他の部屋</button>
+<button class="tbtn" onclick="showScreen('shop-screen');renderShop()">ショップ</button>
+<button class="tbtn" onclick="showPCChange()">主人変更</button>
+</div>`;updateUI()}
+function showPCChange(){
+const el=document.getElementById('room-list');el.innerHTML='<div class="sel-label">操作キャラを変更</div>';
+const chars=Object.values(CHARS);
+for(const ch of chars){
+const isCur=ch.id===G.pc;
+el.innerHTML+=`<div class="room-card" style="${isCur?'border-color:var(--accent)':''}" onclick="doSwitchPC('${ch.id}')">
+<div class="room-card-name">${ch.name}${isCur?' ◀ 現在':''}</div>
+<div class="room-card-stat">${ch.faction} ／ ${ch.desc}</div></div>`}
+el.innerHTML+='<button class="tbtn" style="margin-top:12px" onclick="closeRoom()">戻る</button>';
+showScreen('room-screen')}
+function doSwitchPC(newPcId){
+if(newPcId===G.pc){closeRoom();return}
+const oldPc=G.pc;G.pc=newPcId;
+// Ensure new PC has a target state (for if they were a target before)
+if(!G.targets[newPcId])G.targets[newPcId]=newTarget(newPcId);
+// If current target is the new PC, switch to someone else
+if(G.currentTarget===newPcId){
+const others=G.unlockedTargets.filter(id=>id!==newPcId);
+if(others.length)G.currentTarget=others[0];
+else{G.currentTarget=oldPc}}
+// Ensure old PC is in unlocked targets (so they can be a target)
+if(!G.unlockedTargets.includes(oldPc)){G.unlockedTargets.push(oldPc)}
+if(!G.targets[oldPc])G.targets[oldPc]=newTarget(oldPc);
+closeRoom();txt(`── 主人を ${CHARS[newPcId].name} に変更した ──`,'system');updateUI()}
+function showPairStart(){
+const pk=G.pc+'_'+G.currentTarget;const pv=PAIR_VOICE[pk];if(!pv||!pv.start)return;
+const ts=G.targets[G.currentTarget];if(!ts)return;
+const legacyFirstFlag={
+'crocodile_mihawk':'_p_cromi',
+'mihawk_crocodile':'_p_mihcro',
+'doffy_law':'_p_doflaw',
+'law_doffy':'_p_lawdof',
+'mihawk_zoro':'_p_mihzo',
+'zoro_mihawk':'_p_zomih'
+};
+for(const entry of pv.start){if(entry.c(ts)){
+// Set pair first flag
+const fk='_p_'+pk.replace('_','');
+ts.firstFlags[fk]=true;
+const legacyFk=legacyFirstFlag[pk];
+if(legacyFk)ts.firstFlags[legacyFk]=true;
+for(const l of entry.lines)txt(l.s,l.t==='voice'?'voice':'narration');
+return}}}
+function nextDay(){G.day++;G.phase='training';document.getElementById('phase-area').innerHTML='';
+txt('','sep');txt(`─── Day ${G.day} ───`,'system');showPairStart();showCmds();updateUI()}
+// ============================================================
+// SHOP
+// ============================================================
+function renderShop(){
+document.getElementById('shop-xp').textContent=`所持XP: ${G.xp}`;
+const el=document.getElementById('shop-list');el.innerHTML='';
+// Unlocks
+let html='<div class="shop-cat">コマンド解放</div>';
+SHOP.filter(s=>s.type==='unlock').forEach(s=>{
+const owned=G.unlocks.includes(s.id);
+html+=`<div class="shop-item"><div><div class="shop-item-name">${s.name}</div><div class="shop-item-desc">${s.desc}</div></div>
+<div><span class="shop-item-price">${owned?'取得済':s.price+'XP'}</span>
+${owned?'':`<button class="shop-buy" ${G.xp<s.price?'disabled':''} onclick="buyShop('${s.id}')">購入</button>`}</div></div>`});
+// Items
+html+='<div class="shop-cat">消費アイテム</div>';
+SHOP.filter(s=>s.type==='item').forEach(s=>{
+html+=`<div class="shop-item"><div><div class="shop-item-name">${s.name}</div><div class="shop-item-desc">${s.desc}</div></div>
+<div><span class="shop-item-price">${s.price}XP</span>
+<button class="shop-buy" ${G.xp<s.price?'disabled':''} onclick="buyShop('${s.id}')">購入</button></div></div>`});
+// Characters
+html+='<div class="shop-cat">新キャラクター</div>';
+Object.values(CHARS).filter(t=>t.cost>0&&!G.unlockedTargets.includes(t.id)).forEach(t=>{
+html+=`<div class="shop-item"><div><div class="shop-item-name">${t.name}</div><div class="shop-item-desc">${t.desc} / ${t.body_type}</div></div>
+<div><span class="shop-item-price">${t.cost}XP</span>
+<button class="shop-buy" ${G.xp<t.cost?'disabled':''} onclick="buyChara('${t.id}')">購入</button></div></div>`});
+el.innerHTML=html}
+function buyShop(id){const s=SHOP.find(x=>x.id===id);if(!s||G.xp<s.price)return;G.xp-=s.price;
+if(s.type==='unlock')G.unlocks.push(s.id);
+else G.inventory.push(s.id);
+renderShop()}
+function buyChara(id){const t=CHARS[id];if(!t||G.xp<t.cost)return;G.xp-=t.cost;
+G.unlockedTargets.push(id);G.targets[id]=newTarget(id);renderShop()}
+function closeShop(){showScreen('game-screen');updateUI()}
+// ============================================================
+// ROOM SELECT
+// ============================================================
+function renderRooms(){
+const el=document.getElementById('room-list');el.innerHTML='';
+G.unlockedTargets.filter(id=>id!==G.pc).forEach(id=>{
+const t=CHARS[id],ts=G.targets[id];
+const hpPct=Math.round(ts.hp/ts.mhp*100);
+const fall=getFallen(ts);
+const isCur=id===G.currentTarget;
+el.innerHTML+=`<div class="room-card" style="${isCur?'border-color:var(--accent)':''}" onclick="switchTarget('${id}')">
+<div class="room-card-name">${t.name}${isCur?' ◀ 現在':''}${fall?' ['+fall+']':''}</div>
+<div class="room-card-stat">体力${hpPct}% ／ 従順${ts.abl.obey>=10?'MAX':'Lv'+ts.abl.obey} 欲望${ts.abl.desire>=10?'MAX':'Lv'+ts.abl.desire}${(ts.piercings||[]).length?' ／ ピアス×'+ts.piercings.length:''}${ts.branded?' ／ 烙印':''}</div></div>`})}
+function switchTarget(id){if(id===G.currentTarget){closeRoom();return}
+G.currentTarget=id;G.cmdCount=0;G.prevCmd=null;G.prevCmdCount=0;
+for(const k of Object.keys(G.sessionPalam))G.sessionPalam[k]=0;G.sessionFlags={};G.hakiUsed={};
+closeRoom();txt('','sep');txt(`─── ${CHARS[id].name}の部屋へ移動 ───`,'system');showPairStart();showCmds();updateUI()}
+function closeRoom(){showScreen('game-screen');updateUI()}
+// ============================================================
+// UI
+// ============================================================
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='select-screen')renderSelect()}
+let selPc=null,selTgt=null;
+function renderSelect(){
+const freeChars=Object.values(CHARS).filter(c=>c.cost===0);
+// PC list: all free characters
+const pel=document.getElementById('pc-list');pel.innerHTML='';
+for(const ch of freeChars){
+const c=document.createElement('div');c.className='ccard'+(selPc===ch.id?' sel':'');
+c.innerHTML=`<div class="ccard-name">${ch.name}</div><div class="ccard-info">${ch.faction} ／ ${ch.desc} ／ ${ch.body_type}</div>
+<div class="ccard-tags">${ch.talents.filter(t=>!['童貞','処女','バックバージン'].includes(t)).map(t=>`<span class="ccard-tag">${t}</span>`).join('')}</div>`;
+c.onclick=()=>{selPc=ch.id;if(selTgt===ch.id)selTgt=null;renderSelect()};pel.appendChild(c)}
+// Target list: all free characters except selected PC
+const tel=document.getElementById('tgt-list');tel.innerHTML='';
+const tgtPool=freeChars.filter(c=>c.id!==selPc);
+if(!selPc){tel.innerHTML='<div style="color:var(--text-dim);padding:8px;font-size:.85em">先に操作キャラを選択してください</div>'}
+else{for(const ch of tgtPool){
+const c=document.createElement('div');c.className='ccard'+(selTgt===ch.id?' sel':'');
+c.innerHTML=`<div class="ccard-name">${ch.name}</div><div class="ccard-info">${ch.faction} ／ ${ch.desc} ／ ${ch.body_type}</div>
+<div class="ccard-tags">${ch.talents.filter(t=>!['童貞','処女','バックバージン'].includes(t)).map(t=>`<span class="ccard-tag">${t}</span>`).join('')}</div>`;
+c.onclick=()=>{selTgt=ch.id;renderSelect()};tel.appendChild(c)}}
+document.getElementById('start-btn').disabled=!(selPc&&selTgt&&selPc!==selTgt)}
+function startGame(){G=newGame(selPc);G.currentTarget=selTgt;
+if(!G.targets[selTgt])G.targets[selTgt]=newTarget(selTgt);
+if(!G.unlockedTargets.includes(selTgt))G.unlockedTargets.push(selTgt);
+showScreen('game-screen');clrTxt();
+const tgt=CHARS[G.currentTarget];
+txt('ここは新世界のどこかにある謎の屋敷。','narration');
+txt(`${tgt.name}が、この屋敷に囚われている。`,'narration');
+txt('','sep');txt(`─── Day ${G.day} ───`,'system');G.phase='training';showPairStart();showCmds();updateUI()}
+function showCmds(){
+const ca=document.getElementById('carea'),te=document.getElementById('ctabs'),le=document.getElementById('clist');
+ca.style.display='flex';document.getElementById('phase-area').innerHTML='';
+const cats=[...new Set(CMDS.map(c=>c.cat))];if(!G._cat||!cats.includes(G._cat))G._cat=cats[0];
+te.innerHTML=cats.map(c=>`<button class="ctab${c===G._cat?' active':''}" onclick="G._cat='${c}';showCmds()">${CAT_LBL[c]||c}</button>`).join('');
+const ts=G.targets[G.currentTarget],pc=CHARS[G.pc];
+le.innerHTML='';CMDS.filter(c=>c.cat===G._cat).forEach(cmd=>{
+const bc=bcheck(cmd),ac=ablCheck(cmd);
+const ptOk=!cmd.rpt||pc.talents.includes(cmd.rpt);
+const ulOk=!cmd.req_unlock||G.unlocks.includes(cmd.req_unlock);
+const itemOk=!cmd.req_item||G.unlocks.includes(cmd.req_item)||G.inventory.includes(cmd.req_item);
+// Count consumable items in inventory
+const itemCount=cmd.req_item?G.inventory.filter(x=>x===cmd.req_item).length:0;
+const isConsumable=cmd.req_item&&!G.unlocks.includes(cmd.req_item)&&itemCount>0;
+const avail=bc.ok&&ac.ok&&ptOk&&ulOk&&itemOk&&ts.hp>0;
+// Hide unavailable commands entirely
+if(!avail)return;
+let co=null,hkR=0;
+if(!cmd.isH&&cmd.ord>0)co=comOrd(cmd);
+if(cmd.isH)hkR=hakiCheck(cmd);
+const risky=(co&&co.prob<50)||(cmd.isH&&hkR<50);
+const hpPct=ts.mhp>0?Math.round(cmd.hp/ts.mhp*100):0;
+const costLbl=cmd.heals?`<span class="cc" style="color:var(--success)">＋${Math.round(cmd.heals/ts.mhp*100)}%</span>`:hpPct>0?`<span class="cc">－${hpPct}%</span>`:'';
+let rateT='';
+if(isConsumable)rateT=`<span class="cr">×${itemCount}</span>`;
+else if(cmd.isH)rateT=`<span class="${hkR<50?'ck':'cr'}">${hkR}%</span>`;
+else if(cmd.ord>0&&co)rateT=`<span class="${co.prob<50?'ck':'cr'}">${co.prob}%</span>`;
+const btn=document.createElement('button');
+btn.className='cbtn'+(risky?' risky':'');
+btn.innerHTML=`${cmd.name} ${costLbl}${rateT}`;
+btn.onclick=()=>execCmd(cmd.id);le.appendChild(btn)})}
+function updateUI(){if(!G)return;const ts=G.targets[G.currentTarget],tgt=CHARS[G.currentTarget],pc=CHARS[G.pc];
+document.getElementById('hdr-pc').textContent=pc.name;
+const tl=G.phase==='training'?`調教中 ${G.cmdCount}/${G.maxCmd}`:'夜';
+document.getElementById('hdr-day').textContent=`Day ${G.day} ／ ${tl}`;
+document.getElementById('hdr-xp').textContent=`XP:${G.xp}`;
+const sb=document.getElementById('sbar');
+const hb=(l,v,m,c)=>`<div class="sr"><span class="sr-l">${l}</span><div class="sr-bw"><div class="sr-b" style="width:${Math.max(0,v/m*100)}%;background:${c}"></div></div><span class="sr-v">${Math.floor(v/m*100)}%</span></div>`;
+const pb=(l,v,m,c)=>`<div class="sr"><span class="sr-l">${l}</span><div class="sr-bw"><div class="sr-b" style="width:${Math.min(100,Math.max(0,v/m*100))}%;background:${c}"></div></div></div>`;
+const p=G.sessionPalam;
+let L=`<div class="spnl-name">${tgt.name}</div>`;
+L+=hb('体力',ts.hp,ts.mhp,'#4a8');
+L+=pb('恭順',p.kyoujun||0,PALAM_LV[3],'#6a8');
+L+=pb('欲情',p.desire||0,PALAM_LV[3],'var(--pc)');
+L+=pb('恐怖',p.fear||0,PALAM_LV[3],'var(--pfear)');
+L+=pb('屈服',p.sub||0,PALAM_LV[3],'var(--psub)');
+L+=pb('反感',p.rebel||0,PALAM_LV[3],'var(--prebel)');
+// Right: state
+const aLbl={obey:'従順',desire:'欲望',technique:'技巧',sensC:'C感覚',sensV:'V感覚',sensA:'A感覚',sensB:'B感覚',service:'奉仕',expo:'露出',maso:'Ｍ',sado:'Ｓ'};
+let R='<div class="spnl-name">状態</div>';
+// Fallen state display
+const fallen=getFallen(ts);
+if(fallen){const fc={恋慕:'love',淫乱:'lust',服従:'obey',崩壊:'broken'};
+R+=`<div class="sln"><span class="fallen-tag fallen-${fc[fallen]}">${fallen}</span></div>`}
+// Clothing + equips line
+const clothTxt=CLOTH_NAMES[ts.clothing||0];
+const eqNames=(ts.equips||[]).map(e=>EQUIP_DATA[e]?.name||e);
+const wearParts=[clothTxt,...eqNames];
+R+=`<div class="sln">${wearParts.map(w=>`<span class="stag">${w}</span>`).join('')}</div>`;
+// Piercings + Brand (permanent)
+const permParts=[];
+for(const pId of (ts.piercings||[])){const pd=PIERCING_DATA[pId];if(pd)permParts.push(pd.name)}
+if(ts.branded)permParts.push('烙印');
+if(permParts.length)R+=`<div class="sln">${permParts.map(w=>`<span class="stag" style="border-color:var(--danger);color:var(--danger-bright)">${w}</span>`).join('')}</div>`;
+// ABL
+const ap=[];for(const[k,v]of Object.entries(ts.abl))if(v>0)ap.push(`${aLbl[k]||k}<b>${v>=10?'MAX':v}</b>`);
+R+=ap.length?`<div class="sln">${ap.join(' ')}</div>`:'';
+const mLbl={pain:'苦痛',pleasure:'快楽',submit:'屈服',rebel:'反発'};
+const mp=[];for(const[k,v]of Object.entries(ts.marks))if(v>0)mp.push(`<span class="smrk">${mLbl[k]}${v}</span>`);
+if(mp.length)R+=`<div class="sln">刻印: ${mp.join(' ')}</div>`;
+R+=`<div class="sln">${ts.talents.map(t=>`<span class="stag">${t}</span>`).join('')}</div>`;
+sb.innerHTML=`<div class="spnl">${L}</div><div class="spnl">${R}</div>`;
+if(G.phase==='training')showCmds()}
+function txt(t,ty='narration'){const a=document.getElementById('tarea');if(ty==='sep'){a.innerHTML+='<div class="t-separator"></div>'}else{a.innerHTML+=`<div class="tl t-${ty}">${t}</div>`}a.scrollTop=a.scrollHeight}
+function clrTxt(){document.getElementById('tarea').innerHTML=''}
+function saveGame(){if(!G)return;localStorage.setItem('eraop_save',JSON.stringify(G));txt('── SAVE完了 ──','system')}
+function loadGame(){const d=localStorage.getItem('eraop_save');if(!d){showModal('データなし','<p style="text-align:center;color:var(--text-dim)">セーブデータがありません。</p><button class="tbtn" onclick="closeModal()" style="margin-top:10px">OK</button>');return}G=JSON.parse(d);showScreen('game-screen');clrTxt();txt('── ロード完了 ──','system');
+txt(`Day ${G.day} ／ ${CHARS[G.currentTarget].name}`,'system');G.phase='training';showCmds();updateUI()}
+let _prevScreen='title-screen';
+function showHelp(){_prevScreen=G?'game-screen':'title-screen';showScreen('help-screen')}
+function backFromHelp(){showScreen(_prevScreen)}
+function showModal(title,html){document.getElementById('modal-content').innerHTML=`<h3>${title}</h3>${html}`;document.getElementById('modal').classList.add('active')}
+function closeModal(){document.getElementById('modal').classList.remove('active')}
+</script>
+</body>
+</html>
